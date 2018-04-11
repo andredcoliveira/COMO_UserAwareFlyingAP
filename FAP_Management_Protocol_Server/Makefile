@@ -7,7 +7,7 @@
 ###############################################################################
 
 CC		= gcc
-CFLAGS	= -Wall #-Wextra
+CFLAGS	= -Wall -pthread #-Wextra
 
 BIN		= bin
 SRC		= src

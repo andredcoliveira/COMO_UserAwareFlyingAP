@@ -17,6 +17,9 @@ int main()
 
 	printf("FAP Management Protocol (Server) Test not yet implemented!\n"
 		   "Will be implemented by Eduardo Almeida.\n");
+	initializeFapManagementProtocol();
+    while(1){
 
+    }
 	return 0;
 }
