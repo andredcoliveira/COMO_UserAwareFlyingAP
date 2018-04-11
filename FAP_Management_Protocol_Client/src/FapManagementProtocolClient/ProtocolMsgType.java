@@ -30,4 +30,8 @@ enum ProtocolMsgType
 	{
 		this.msgTypeValue = mtv;
 	}
+
+	public int getMsgTypeValue() {
+		return msgTypeValue;
+	}
 }
