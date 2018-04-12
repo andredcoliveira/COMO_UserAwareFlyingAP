@@ -8,8 +8,11 @@
 
 package FapManagementProtocolClient;
 
-import FapManagementProtocolClient.GpsCoordinates;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 
 
@@ -64,7 +68,7 @@ public class FapManagementProtocol_Client
 	//           PUBLIC API
 	// =========================================================
 
-	//TODO: reduce duplicated code for user association handling
+	//TODO: check if duplicated code can be reduced
 
 	/**
 	 * Request a user association to the FAP.
@@ -75,50 +79,66 @@ public class FapManagementProtocol_Client
 	public boolean requestUserAssociation() {
 
 		/* Replace with getUserIdExternal() if server address isn't local */
-		int userId;
-		if((userId = getUserIdLocal()) < 0)
+		int userId = getUserIdLocal();
+		if(userId < 0)
 			return RETURN_VALUE_ERROR;
 
+
+		/* Create JSON formatted String with data */
 		LinkedHashMap<String, Object> data = new LinkedHashMap<>();
 		data.put(PROTOCOL_PARAMETERS_USER_ID, userId);
 		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.USER_ASSOCIATION_REQUEST.getMsgTypeValue());
 
-		Gson gson = new Gson();
-		String msg = gson.toJson(data);
-
-		Socket socket = new Socket();
+		ObjectMapper objectMapper = new ObjectMapper();
+		String msg;
 		try {
-			socket.connect(
-				new InetSocketAddress(SERVER_IP_ADDRESS, SERVER_PORT_NUMBER),
-				USER_ASSOCIATION_TIMEOUT_SECONDS);
-		} catch (IOException e) {
+			msg = objectMapper.writeValueAsString(data);
+		} catch (JsonProcessingException e) {
 			return RETURN_VALUE_ERROR;
 		}
 
-		if(!sendMsg(msg, socket)) {
-			closeSocket(socket);
+		/* Open socket for communication with server */
+		Socket socket = new Socket();
+		if(!connectSocket(socket, USER_ASSOCIATION_TIMEOUT_SECONDS))
 			return RETURN_VALUE_ERROR;
+
+
+		/* Send JSON message through socket */
+		if(!sendMsg(msg, socket))
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+
+
+		/* Set the timeout value and read response from socket */
+		try {
+			socket.setSoTimeout(USER_ASSOCIATION_TIMEOUT_SECONDS*1000);
+		} catch (SocketException e) {
+			return closeSocket(socket, RETURN_VALUE_ERROR);
 		}
 
 		BufferedReader in;
 		try {
 			 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch (IOException e) {
-			closeSocket(socket);
-			return RETURN_VALUE_ERROR;
+			return closeSocket(socket, RETURN_VALUE_ERROR);
 		}
 
-		LinkedHashMap response = gson.fromJson(in, LinkedHashMap.class);
+
+		/* Parse response and check its values */
+		LinkedHashMap response;
+		try {
+			response = objectMapper.readValue(in, LinkedHashMap.class);
+		} catch (IOException e) {
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+		}
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 
 		if(responseId != userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
-			closeSocket(socket);
-			return RETURN_VALUE_ERROR;
+			return closeSocket(socket, RETURN_VALUE_ERROR);
 		}
 
-		closeSocket(socket);
-		return RETURN_VALUE_OK;
+		/* If the function reached this point, everything must be OK */
+		return closeSocket(socket, RETURN_VALUE_OK);
 	}
 
 
@@ -130,52 +150,67 @@ public class FapManagementProtocol_Client
 	 */
 	public boolean requestUserDesassociation() {
 
-		/* Replace with getUserIdLocal() if server address isn't local */
-		int userId;
-		if((userId = getUserIdLocal()) < 0)
+		/* Replace with getUserIdExternal() if server address isn't local */
+		int userId = getUserIdLocal();
+		if(userId < 0)
 			return RETURN_VALUE_ERROR;
 
+
+		/* Create JSON formatted String with data */
 		LinkedHashMap<String, Object> data = new LinkedHashMap<>();
 		data.put(PROTOCOL_PARAMETERS_USER_ID, userId);
 		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.USER_DESASSOCIATION_REQUEST.getMsgTypeValue());
 
-		Gson gson = new Gson();
-		String msg = gson.toJson(data);
-
-		Socket socket = new Socket();
+		ObjectMapper objectMapper = new ObjectMapper();
+		String msg;
 		try {
-			socket.connect(
-				new InetSocketAddress(SERVER_IP_ADDRESS, SERVER_PORT_NUMBER),
-				USER_DESASSOCIATION_TIMEOUT_SECONDS
-			);
-		} catch (IOException e) {
+			msg = objectMapper.writeValueAsString(data);
+		} catch (JsonProcessingException e) {
 			return RETURN_VALUE_ERROR;
 		}
 
-		if(!sendMsg(msg, socket)) {
-			closeSocket(socket);
+
+		/* Open socket for communication with server */
+		Socket socket = new Socket();
+		if(!connectSocket(socket, USER_DESASSOCIATION_TIMEOUT_SECONDS))
 			return RETURN_VALUE_ERROR;
+
+
+		/* Send JSON message through socket */
+		if(!sendMsg(msg, socket))
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+
+
+		/* Set the timeout value and read response from socket */
+		try {
+			socket.setSoTimeout(USER_DESASSOCIATION_TIMEOUT_SECONDS*1000);
+		} catch (SocketException e) {
+			return closeSocket(socket, RETURN_VALUE_ERROR);
 		}
 
 		BufferedReader in;
 		try {
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch (IOException e) {
-			closeSocket(socket);
-			return RETURN_VALUE_ERROR;
+			return closeSocket(socket, RETURN_VALUE_ERROR);
 		}
 
-		LinkedHashMap response = gson.fromJson(in, LinkedHashMap.class);
+
+		/* Parse response and check its values */
+		LinkedHashMap response;
+		try {
+			response = objectMapper.readValue(in, LinkedHashMap.class);
+		} catch (IOException e) {
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+		}
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 
 		if(responseId != userId || responseMsgType != ProtocolMsgType.USER_DESASSOCIATION_ACK.getMsgTypeValue()) {
-			closeSocket(socket);
-			return RETURN_VALUE_ERROR;
+			return closeSocket(socket, RETURN_VALUE_ERROR);
 		}
 
-		closeSocket(socket);
-		return RETURN_VALUE_OK;
+		return closeSocket(socket, RETURN_VALUE_OK);
 	}
 
 
@@ -186,13 +221,98 @@ public class FapManagementProtocol_Client
 	 * @return					True / false if the GPS coordinates were / were not ACK by
 	 * 							the server (considering GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS).
 	 */
-	public boolean sendGpsCoordinatesToFap(GpsCoordinates gpsCoordinates)
-	{
-		// TODO: Implement function
+	public boolean sendGpsCoordinatesToFap(GpsCoordinates gpsCoordinates) {
+		if(gpsCoordinates == null)
+			return RETURN_VALUE_ERROR;
 
 
+		/* Replace with getUserIdExternal() if server address isn't local */
+		int userId = getUserIdLocal();
+		if(userId < 0)
+			return RETURN_VALUE_ERROR;
 
-		return RETURN_VALUE_OK;
+
+		/* Create JSON formatted String with data */
+		LinkedHashMap<Object, Object> data = new LinkedHashMap<>();
+		data.put(PROTOCOL_PARAMETERS_USER_ID, userId);
+		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.GPS_COORDINATES_UPDATE.getMsgTypeValue());
+		data.put(PROTOCOL_PARAMETERS_GPS_COORDINATES, gpsCoordinates);
+
+		/* Standardize field names here since GpsCoordinates can't access these private constants
+		 * in order to use @SerializedName(<name>) */
+		PropertyNamingStrategy customStrategy = new PropertyNamingStrategy(){
+			public String nameForGetterMethod(
+					MapperConfig<?> config,
+					AnnotatedMethod method,
+					String defaultName)
+			{
+				if(defaultName.equals("latitude")) {
+					return PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT;
+				}
+				if(defaultName.equals("longitude")) {
+					return PROTOCOL_PARAMETERS_GPS_COORDINATES_LON;
+				}
+				if(defaultName.equals("altitude")) {
+					return PROTOCOL_PARAMETERS_GPS_COORDINATES_ALT;
+				}
+				return defaultName;
+			}
+		};
+
+		ObjectMapper objectMapper = new ObjectMapper().setPropertyNamingStrategy(customStrategy);
+		String msg;
+		try {
+			msg = objectMapper.writeValueAsString(data);
+		} catch (JsonProcessingException e) {
+			return RETURN_VALUE_ERROR;
+		}
+
+
+		/* Open socket for communication with server */
+		Socket socket = new Socket();
+		if(!connectSocket(socket, GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS))
+			return RETURN_VALUE_ERROR;
+
+
+		/* Send JSON message through socket */
+		if(!sendMsg(msg, socket))
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+
+
+		/* Set the timeout value and read response from socket */
+		try {
+			socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000);
+		} catch (SocketException e) {
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+		}
+
+		BufferedReader in;
+		try {
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		} catch (IOException e) {
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+		}
+
+
+		/* Parse response and check its values */
+		/*LinkedHashMap response = gson.fromJson(in, LinkedHashMap.class);*/
+		LinkedHashMap response = null;
+		try {
+			response = objectMapper.readValue(in, LinkedHashMap.class);
+		} catch (IOException e) {
+			closeSocket(socket, RETURN_VALUE_ERROR);
+		}
+		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
+		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
+		String responseTimestamp = response.get(PROTOCOL_PARAMETERS_GPS_TIMESTAMP).toString();
+
+		if(responseId != userId
+				|| responseMsgType != ProtocolMsgType.GPS_COORDINATES_ACK.getMsgTypeValue()
+				|| !responseTimestamp.equals(gpsCoordinates.toString())) {
+			return closeSocket(socket, RETURN_VALUE_ERROR);
+		}
+
+		return closeSocket(socket, RETURN_VALUE_OK);
 	}
 
 
@@ -269,7 +389,7 @@ public class FapManagementProtocol_Client
 	/**
 	 * @param socket 	Socket to be closed
 	 */
-	private void closeSocket(Socket socket) {
+	private boolean closeSocket(Socket socket, boolean retval) {
 		if(socket != null && socket.isConnected()) {
 			try {
 				socket.close();
@@ -277,5 +397,25 @@ public class FapManagementProtocol_Client
 				//no need for catch, function is returning error already
 			}
 		}
+
+		return retval;
+	}
+
+	/**
+	 * @param socket 	Socket to connect to
+	 * @param timeout 	Timeout value in seconds
+	 * @return 			True/False in case of success/failure
+	 */
+	private boolean connectSocket(Socket socket, int timeout) {
+
+		try {
+			socket.connect(
+				new InetSocketAddress(SERVER_IP_ADDRESS, SERVER_PORT_NUMBER),
+				timeout*1000);
+		} catch (IOException e) {
+			return false;
+		}
+
+		return true;
 	}
 }

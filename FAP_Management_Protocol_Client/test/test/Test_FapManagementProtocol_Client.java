@@ -10,9 +10,6 @@ package test;
 
 import FapManagementProtocolClient.*;
 
-import java.util.LinkedHashMap;
-import com.google.gson.Gson;
-
 
 /**
  * FAP Management Protocol (Client) test.
@@ -32,20 +29,18 @@ public class Test_FapManagementProtocol_Client
 							"Will be implemented by Eduardo Almeida.");
 
 
-		/*FapManagementProtocol_Client teste = new FapManagementProtocol_Client();
-
-		System.out.println(teste.requestUserAssociation() ? "OK" : "ERROR");*/
-
-		/*Gson gson = new Gson();
-		String json = "{\"id\":\"1\",\"message\":\"web_didload\",\"content\":{\"success\":1}}";
-		LinkedHashMap response = gson.fromJson(json, LinkedHashMap.class);
-
-		System.out.println(response.toString());*/
-
-		/*Object boas = "123";
-		System.out.println(Integer.parseInt(boas.toString()));*/
 
 
+		/* ------------- IGNORE ------------- */
+
+		FapManagementProtocol_Client fmpClient = new FapManagementProtocol_Client();
+
+
+		System.out.println(fmpClient.requestUserAssociation() ? "RUA: OK" : "RUA: ERROR");
+		System.out.println(fmpClient.requestUserDesassociation() ? "RUD: OK" : "RUD: ERROR");
+		System.out.println(fmpClient.sendGpsCoordinatesToFap(null) ? "SGC: OK" : "SGC: ERROR");
+
+		/* ------------- IGNORE ------------- */
 	}
 
 }
