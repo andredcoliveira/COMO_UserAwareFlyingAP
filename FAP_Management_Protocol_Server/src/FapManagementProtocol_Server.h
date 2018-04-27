@@ -6,7 +6,16 @@
 *                             FEUP | MIEEC / MIEIC
 *******************************************************************************/
 
+#include <pthread.h>
 #pragma once
+// Module headers
+#include "GpsCoordinates.h"
+
+
+
+// =========================================================
+//           DEFINES
+
 
 
 // =========================================================
@@ -17,40 +26,26 @@
 #define RETURN_VALUE_OK				0
 #define RETURN_VALUE_ERROR			(-1)
 
-// Size of an ISO8601 timestamp (including '\0')
-#define TIMESTAMP_ISO8601_SIZE		21
-
 // Maximum simultaneously associated users
 #define MAX_ASSOCIATED_USERS		10
 
 
+
 // =========================================================
+typedef struct _threads_clients
+{
+	pthread_t tid;
+	int       socket;
+	int 	  status;
+	int 	  user_id;
+	int 	  alarm_flag;
+}threads_clients;
 //           STRUCTS
 // =========================================================
 
 /**
  * GPS coordinates in RAW format (lat, lon, alt).
  */
-typedef struct _GpsRawCoordinates
-{
-	float latitude;								// Latitude (in degrees)
-	float longitude;							// Longitude (in degrees)
-	float altitude;								// Altitude (in meters)
-	char timestamp[TIMESTAMP_ISO8601_SIZE];		// Timestamp in ISO8601 format
-} GpsRawCoordinates;
-
-
-/**
- * GPS coordinates in NED format (x, y, z), relative to a given
- * origin coordinates.
- */
-typedef struct _GpsNedCoordinates
-{
-	float x;									// X relative to origin coordinates (in meters)
-	float y;									// Y relative to origin coordinates (in meters)
-	float z;									// Z relative to origin coordinates (in meters)
-	char timestamp[TIMESTAMP_ISO8601_SIZE];		// Timestamp in ISO8601 format
-} GpsNedCoordinates;
 
 
 // =========================================================
