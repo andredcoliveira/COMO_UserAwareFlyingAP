@@ -60,7 +60,8 @@ public class FapManagementProtocol_Client
 
 
 	// ----- FAP MANAGEMENT PROTOCOL - SERVER ADDRESS ----- //
-	private static final String SERVER_IP_ADDRESS		= "10.0.0.254";
+//	private static final String SERVER_IP_ADDRESS		= "10.0.0.254";
+	private static final String SERVER_IP_ADDRESS		= "127.0.0.1";
 	private static final int SERVER_PORT_NUMBER			= 40123;
 
 
@@ -304,13 +305,16 @@ public class FapManagementProtocol_Client
 
 
 		/* Parse response and check its values */
-		/*LinkedHashMap response = gson.fromJson(in, LinkedHashMap.class);*/
 		LinkedHashMap response = null;
 		try {
 			response = objectMapper.readValue(in, LinkedHashMap.class);
 		} catch (IOException e) {
 			closeSocket(socket, RETURN_VALUE_ERROR);
 		}
+
+		if(response == null)
+			closeSocket(socket, RETURN_VALUE_ERROR);
+
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 		String responseTimestamp = response.get(PROTOCOL_PARAMETERS_GPS_TIMESTAMP).toString();

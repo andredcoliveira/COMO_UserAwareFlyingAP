@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e44dded9-3b21-4403-98a1-d648d64e138e" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="e44dded9-3b21-4403-98a1-d648d64e138e" name="Default" comment="Ready for test">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jackson_annotations_2_9_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jackson_core_2_9_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jackson_databind_2_9_5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/FAP_Management_Protocol_Client.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/FAP_Management_Protocol_Client.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java.orig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java.orig" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.c" beforeDir="false" afterPath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/test/Test_FapManagementProtocol_Server.c" beforeDir="false" afterPath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/test/Test_FapManagementProtocol_Server.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -13,23 +24,39 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="FapManagementProtocol_Client.java" pinned="false" current-in-tab="false">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="FapManagementProtocol_Client.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-446">
-              <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+            <state relative-caret-position="111">
+              <caret line="313" column="8" selection-start-line="313" selection-start-column="8" selection-end-line="313" selection-end-column="8" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#8615#9104#0" expanded="true" />
+                <element signature="e#9103#9104#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GpsCoordinates.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Test_FapManagementProtocol_Client.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="98">
+              <caret line="57" selection-start-line="57" selection-end-line="57" />
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="GpsCoordinates.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/GpsCoordinates.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2078">
+            <state relative-caret-position="-7">
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
@@ -40,8 +67,8 @@
       <file leaf-file-name="ProtocolMsgType.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="544">
-              <caret line="32" column="1" lean-forward="true" selection-start-line="32" selection-start-column="1" selection-end-line="32" selection-end-column="1" />
+            <state>
+              <caret line="32" selection-start-line="32" selection-end-line="32" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="e#935#936#0" expanded="true" />
@@ -53,8 +80,26 @@
       </file>
     </leaf>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>gson</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="André Duarte &lt;up201405639@fe.up.pt&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java" />
+        <option value="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java" />
+      </list>
+    </option>
   </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
@@ -74,12 +119,20 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="FAP_Management_Protocol_Client" type="b2602c69:ProjectViewProjectNode" />
               <item name="FAP_Management_Protocol_Client" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="FAP_Management_Protocol_Client" type="b2602c69:ProjectViewProjectNode" />
+              <item name="FAP_Management_Protocol_Client" type="462c0819:PsiDirectoryNode" />
+              <item name=".idea" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="FAP_Management_Protocol_Client" type="b2602c69:ProjectViewProjectNode" />
@@ -97,13 +150,16 @@
               <item name="FAP_Management_Protocol_Client" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="FAP_Management_Protocol_Client" type="b2602c69:ProjectViewProjectNode" />
+              <item name="FAP_Management_Protocol_Client" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
-      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -112,7 +168,10 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="com.intellij.jarRepository.settings.RemoteRepositoriesConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -181,11 +240,12 @@
       <updated>1522960868972</updated>
       <workItem from="1522960889429" duration="2406000" />
       <workItem from="1523387553060" duration="1152000" />
+      <workItem from="1525026691679" duration="2986000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3558000" />
+    <option name="totallyTimeSpent" value="6544000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -197,15 +257,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
-      <window_info active="true" anchor="bottom" id="TODO" order="6" visible="true" weight="0.3297414" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.31611893" />
+      <window_info active="true" anchor="bottom" id="Messages" sideWeight="0.49926794" visible="true" weight="0.3286385" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.3286385" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50073206" side_tool="true" weight="0.3286385" />
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" />
@@ -213,7 +274,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2553305" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13616398" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info id="Learn" order="2" />
@@ -236,7 +297,48 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/../.." />
+    </ignored-roots>
+    <MESSAGE value="Ready for test" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ready for test" />
+  </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="901">
+          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#8615#9104#0" expanded="true" />
+            <element signature="e#9103#9104#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="32" lean-forward="true" selection-start-line="32" selection-end-line="32" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#935#936#0" expanded="true" />
+            <element signature="e#965#966#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/GpsCoordinates.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -247,8 +349,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="32" column="1" lean-forward="true" selection-start-line="32" selection-start-column="1" selection-end-line="32" selection-end-column="1" />
+        <state>
+          <caret line="32" selection-start-line="32" selection-end-line="32" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="e#935#936#0" expanded="true" />
@@ -257,21 +359,59 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/GpsCoordinates.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-446">
-          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+        <state relative-caret-position="-7">
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/GpsCoordinates.java">
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java.orig">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2078">
+        <state relative-caret-position="114">
+          <caret line="80" column="61" selection-start-line="80" selection-start-column="61" selection-end-line="80" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk-9/lib/src.zip!/java.base/java/time/LocalDateTime.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="325">
+          <caret line="178" column="32" selection-start-line="178" selection-start-column="32" selection-end-line="178" selection-end-column="32" />
+          <folding>
+            <element signature="e#6863#6864#0" expanded="true" />
+            <element signature="e#6916#6917#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/FAP_Management_Protocol_Client.iml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="98">
+          <caret line="57" selection-start-line="57" selection-end-line="57" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="111">
+          <caret line="313" column="8" selection-start-line="313" selection-start-column="8" selection-end-line="313" selection-end-column="8" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#8615#9104#0" expanded="true" />
+            <element signature="e#9103#9104#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -279,9 +419,80 @@
   </component>
   <component name="masterDetails">
     <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>9</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>FAP_Management_Protocol_Client</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
       <state key="ProjectJDKs.UI">
         <settings>
           <last-edited>9</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>jackson-annotations-2.9.5</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

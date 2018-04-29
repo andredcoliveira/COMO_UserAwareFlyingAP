@@ -118,11 +118,11 @@ int alive = FALSE;
 // =========================================================
 //           FUNCTIONS
 // =========================================================
-double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2)
-{
-    return sqrt(pow((x1.x-x2.x),2)+pow((x1.y-x2.y),2)+pow((x1.z-x2.z),2));
+double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2) {
+    return sqrt(pow((x1.x-x2.x), 2) + 
+				pow((x1.y-x2.y), 2) + 
+				pow((x1.z-x2.z), 2));
 }
-
 
 int get_free_thread() {
     for(int i = 0; i < 11; i++) {

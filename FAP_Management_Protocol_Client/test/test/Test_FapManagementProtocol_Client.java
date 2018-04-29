@@ -1,10 +1,10 @@
 /******************************************************************************
-*                         User-Aware Flying AP Project
-*                       FAP Management Protocol (Client)
-*******************************************************************************
-*                        Comunicacoes Moveis 2017/2018
-*                             FEUP | MIEEC / MIEIC
-*******************************************************************************/
+ *                         User-Aware Flying AP Project
+ *                       FAP Management Protocol (Client)
+ *******************************************************************************
+ *                        Comunicacoes Moveis 2017/2018
+ *                             FEUP | MIEEC / MIEIC
+ *******************************************************************************/
 
 package test;
 
@@ -24,12 +24,16 @@ public class Test_FapManagementProtocol_Client
 	// =========================================================
 
 	// Limits of the users GPS coordinates
-	private static final float USERS_LATITUDE_MIN =		-8.601089;
-	private static final float USERS_LATITUDE_MAX =		-8.594566;
+//	private static final float USERS_LATITUDE_MIN =		-8.601089;
+//	private static final float USERS_LATITUDE_MAX =		-8.594566;
+	private static final float USERS_LATITUDE_MIN =		-8.601089f;
+	private static final float USERS_LATITUDE_MAX =		-8.594566f;
 
-	private static final float USERS_LONGITUDE_MIN =	41.175590;
-	private static final float USERS_LONGITUDE_MAX =	41.180524;
-	
+//	private static final float USERS_LONGITUDE_MIN =	41.175590;
+//	private static final float USERS_LONGITUDE_MAX =	41.180524;
+	private static final float USERS_LONGITUDE_MIN =	41.175590f;
+	private static final float USERS_LONGITUDE_MAX =	41.180524f;
+
 
 	// =========================================================
 	//           MAIN
@@ -41,9 +45,9 @@ public class Test_FapManagementProtocol_Client
 	public static void main(String[] args)
 	{
 		System.out.println("=============================================\n" +
-							"FAP MANAGEMENT PROTOCOL (CLIENT) TEST\n" +
-							"=============================================\n");
-		
+			"FAP MANAGEMENT PROTOCOL (CLIENT) TEST\n" +
+			"=============================================\n");
+
 		runTests();
 	}
 
@@ -65,7 +69,7 @@ public class Test_FapManagementProtocol_Client
 
 	/**
 	 * Test - FAP Management Protocol.
-	 * 
+	 *
 	 * @return	Number of errors detected.
 	 */
 	private static int runTest_fapManagementProtocol()
@@ -81,8 +85,8 @@ public class Test_FapManagementProtocol_Client
 
 		// Request user association
 		nErrors += assertCondition(fmp.requestUserAssociation() == FapManagementProtocol_Client.RETURN_VALUE_OK,
-									"Requesting user association");
-		
+			"Requesting user association");
+
 		// Send coordinates (repeat 2 times)
 		Random random = new Random();
 
@@ -92,26 +96,19 @@ public class Test_FapManagementProtocol_Client
 			float latitude = USERS_LATITUDE_MIN + random.nextFloat() * (USERS_LATITUDE_MAX - USERS_LATITUDE_MIN);
 			float longitude = USERS_LONGITUDE_MIN + random.nextFloat() * (USERS_LONGITUDE_MAX - USERS_LONGITUDE_MIN);
 
-			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, new LocalDateTime());
+//			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, new LocalDateTime());
+			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, LocalDateTime.now());
+
 
 			// Send GPS coordinates
 			nErrors += assertCondition(fmp.sendGpsCoordinatesToFap(gpsCoordinates) == FapManagementProtocol_Client.RETURN_VALUE_OK,
-										"Sending GPS Coordinates");
+				"Sending GPS Coordinates");
 		}
 
 
-<<<<<<<
-		System.out.println("FAP Management Protocol (Client) Test not yet implemented!\n" +
-							"Will be implemented by Eduardo Almeida.");
-
-
-
-
-		
-=======
 		// Terminate the FAP Management Protocol
 		nErrors += assertCondition(fmp.requestUserDesassociation() == FapManagementProtocol_Client.RETURN_VALUE_OK,
-									"Requesting user desassociation");
+			"Requesting user desassociation");
 
 		return nErrors;
 	}
@@ -126,7 +123,7 @@ public class Test_FapManagementProtocol_Client
 	 *
 	 * @param condition		Condition to be tested.
 	 * @param errorMsg		Message to be displayed if the condition is not valid.
-	 * 
+	 *
 	 * @return				Number of errors detected.
 	 */
 	private static int assertCondition(boolean condition, String errorMsg)
@@ -140,7 +137,5 @@ public class Test_FapManagementProtocol_Client
 		{
 			return 0;
 		}
->>>>>>>
 	}
-
 }

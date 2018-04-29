@@ -6,23 +6,6 @@
 *                             FEUP | MIEEC / MIEIC
 *******************************************************************************/
 
-#include <stdio.h>
-#include <signal.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-
-#include <arpa/inet.h>
-#include "FapManagementProtocol_Server.h"
-#include "MavlinkEmulator.h"
-#include "GpsCoordinates.h"
-/*******************************************************************************
-*                             FEUP | MIEEC / MIEIC
-*******************************************************************************/
-
 // Module headers
 #include "FapManagementProtocol_Server.h"
 
@@ -249,7 +232,6 @@ void runTests()
 //           MAIN
 // =========================================================
 
-
 /**
  * Main.
  */
@@ -259,12 +241,7 @@ int main()
 		   "FAP MANAGEMENT PROTOCOL (SERVER) TEST\n"
 		   "=============================================\n");
 
-
-	printf("FAP Management Protocol (Server) Test not yet implemented!\n"
-		   "Will be implemented by Eduardo Almeida.\n");
-	
 	runTests();
 
 	return 0;
-
 }
