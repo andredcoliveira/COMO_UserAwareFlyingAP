@@ -14,12 +14,12 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
-<<<<<<<
+
 #include <arpa/inet.h>
 #include "FapManagementProtocol_Server.h"
 #include "MavlinkEmulator.h"
 #include "GpsCoordinates.h"
-=======
+/*******************************************************************************
 *                             FEUP | MIEEC / MIEIC
 *******************************************************************************/
 
@@ -248,7 +248,7 @@ void runTests()
 // =========================================================
 //           MAIN
 // =========================================================
->>>>>>>
+
 
 /**
  * Main.
@@ -259,13 +259,12 @@ int main()
 		   "FAP MANAGEMENT PROTOCOL (SERVER) TEST\n"
 		   "=============================================\n");
 
-<<<<<<<
+
 	printf("FAP Management Protocol (Server) Test not yet implemented!\n"
 		   "Will be implemented by Eduardo Almeida.\n");
 	
-=======
 	runTests();
 
 	return 0;
->>>>>>>
+
 }

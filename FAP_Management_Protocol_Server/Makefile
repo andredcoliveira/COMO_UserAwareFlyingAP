@@ -29,10 +29,7 @@ run_test: all
 
 $(BIN)/$(TEST_EXECUTABLE): $(TEST)/* $(SRC)/* $(LIB)/*
 	$(CC) $(CFLAGS) -I$(SRC) -I$(LIB) $(TEST)/*.c $(SRC)/*.c $(LIB)/*/*.c -l$(MATH_LIBRARY) -o $@
-<<<<<<<
-=======
 
->>>>>>>
 
 .PHONY: clean
 clean:
