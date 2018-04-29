@@ -18,6 +18,7 @@
 #include "FapManagementProtocol_Server.h"
 #include "MavlinkEmulator.h"
 #include "GpsCoordinates.h"
+
 int main()
 {
 	printf("=============================================\n"
@@ -35,7 +36,7 @@ int main()
     printf("%f\n %f\n %f\n %s\n", user[0].x, user[0].y, user[0].z, user[0].timestamp);
     printf("WAIT FOR ENTER\n");
     getchar();
-    printf("Closing FAP Management\n");
+    printf("Closing FAP Management Protocol.\n");
 
     terminateFapManagementProtocol();
 	return 0;

@@ -32,6 +32,7 @@
 
 
 // =========================================================
+
 typedef struct _threads_clients
 {
 	pthread_t tid;
@@ -39,7 +40,8 @@ typedef struct _threads_clients
 	int 	  status;
 	int 	  user_id;
 	int 	  alarm_flag;
-}threads_clients;
+} threads_clients;
+
 //           STRUCTS
 // =========================================================
 
