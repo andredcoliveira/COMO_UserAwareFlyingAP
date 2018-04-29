@@ -50,45 +50,45 @@
 // ----- FAP MANAGEMENT PROTOCOL - MESSAGES ----- //
 
 // Protocol parameters
-#define PROTOCOL_PARAMETERS_USER_ID						"userId"
-#define PROTOCOL_PARAMETERS_MSG_TYPE					"msgType"
-#define PROTOCOL_PARAMETERS_GPS_COORDINATES				"gpsCoordinates"
-#define PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT			"lat"
-#define PROTOCOL_PARAMETERS_GPS_COORDINATES_LON			"lon"
-#define PROTOCOL_PARAMETERS_GPS_COORDINATES_ALT			"alt"
-#define PROTOCOL_PARAMETERS_GPS_COORDINATES_TIMESTAMP	"timestamp"
-#define PROTOCOL_PARAMETERS_GPS_TIMESTAMP				"gpsTimestamp"
+#define PROTOCOL_PARAMETERS_USER_ID                     "userId"
+#define PROTOCOL_PARAMETERS_MSG_TYPE                    "msgType"
+#define PROTOCOL_PARAMETERS_GPS_COORDINATES             "gpsCoordinates"
+#define PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT         "lat"
+#define PROTOCOL_PARAMETERS_GPS_COORDINATES_LON         "lon"
+#define PROTOCOL_PARAMETERS_GPS_COORDINATES_ALT         "alt"
+#define PROTOCOL_PARAMETERS_GPS_COORDINATES_TIMESTAMP   "timestamp"
+#define PROTOCOL_PARAMETERS_GPS_TIMESTAMP               "gpsTimestamp"
 
 // Protocol "msgType" values
 typedef enum _ProtocolMsgType
 {
-	USER_ASSOCIATION_REQUEST		= 1,
-	USER_ASSOCIATION_ACCEPTED		= 2,
-	USER_ASSOCIATION_REJECTED		= 3,
-	USER_DESASSOCIATION_REQUEST		= 4,
-	USER_DESASSOCIATION_ACK			= 5,
-	GPS_COORDINATES_UPDATE			= 6,
-	GPS_COORDINATES_ACK				= 7
+    USER_ASSOCIATION_REQUEST        = 1,
+    USER_ASSOCIATION_ACCEPTED       = 2,
+    USER_ASSOCIATION_REJECTED       = 3,
+    USER_DESASSOCIATION_REQUEST     = 4,
+    USER_DESASSOCIATION_ACK         = 5,
+    GPS_COORDINATES_UPDATE          = 6,
+    GPS_COORDINATES_ACK             = 7
 } ProtocolMsgType;
 
 // ----- FAP MANAGEMENT PROTOCOL - PARAMETERS ----- //
 
 // GPS coordinates update period (in seconds)
-#define GPS_COORDINATES_UPDATE_PERIOD_SECONDS			10
-#define GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS			(2 * GPS_COORDINATES_UPDATE_PERIOD_SECONDS)
+#define GPS_COORDINATES_UPDATE_PERIOD_SECONDS           10
+#define GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS          (2 * GPS_COORDINATES_UPDATE_PERIOD_SECONDS)
 
 // Max allowed distance from the users to the FAP (in meters)
-#define MAX_ALLOWED_DISTANCE_FROM_FAP_METERS			300
+#define MAX_ALLOWED_DISTANCE_FROM_FAP_METERS            300
 #define MAX_BUFFER                                      1024
 
-#define TRUE	1
-#define FALSE	0
+#define TRUE    1
+#define FALSE   0
 
-#define HEARTBEAT_INTERVAL_NS	500000000L
+#define HEARTBEAT_INTERVAL_NS   500000000L
 
 // ----- FAP MANAGEMENT PROTOCOL - SERVER ADDRESS ----- //
-#define SERVER_IP_ADDRESS		"10.0.0.254"
-#define SERVER_PORT_NUMBER		40123
+#define SERVER_IP_ADDRESS       "127.0.0.1"
+#define SERVER_PORT_NUMBER      40123
 
 static GpsRawCoordinates fapOriginRawCoordinates = {0};
 
@@ -164,40 +164,40 @@ void *handler_alarm(void *id) {
 }
 
 char *handle_Gps_Update(int thread_id, JSON_Value *root) {
-	char *string = NULL;
+    char *string = NULL;
     ProtocolMsgType response;
     GpsRawCoordinates ClientRawCoordinates = {0};
     GpsNedCoordinates fapActualPosition    = {0};
-	JSON_Object *object = json_value_get_object(root);
+    JSON_Object *object = json_value_get_object(root);
     //Handle Request
-	double latitude = json_object_dotget_number(
-		object, 
-		PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT
-	);
-	double longitude = json_object_dotget_number(
-		object, 
-		PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_LON
-	);
-	double altitude = json_object_dotget_number(
-		object, 
-		PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_ALT
-	);
+    double latitude = json_object_dotget_number(
+        object, 
+        PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT
+    );
+    double longitude = json_object_dotget_number(
+        object, 
+        PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_LON
+    );
+    double altitude = json_object_dotget_number(
+        object, 
+        PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_ALT
+    );
     char *Time = json_object_dotget_string(
-		object, 
-		PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_TIMESTAMP
-	);
+        object, 
+        PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_TIMESTAMP
+    );
 
     initializeGpsRawCoordinates(
-		&ClientRawCoordinates, 
-		latitude, longitude, altitude, (time_t) NULL
-	);
+        &ClientRawCoordinates, 
+        latitude, longitude, altitude, (time_t) NULL
+    );
     strcpy(ClientRawCoordinates.timestamp, Time);
 
     gpsRawCoordinates2gpsNedCoordinates(
-		&clients[thread_id], 
-		&ClientRawCoordinates, 
-		&fapOriginRawCoordinates
-	);
+        &clients[thread_id], 
+        &ClientRawCoordinates, 
+        &fapOriginRawCoordinates
+    );
     //Determine Fap Actual Position
     sendMavlinkMsg_localPositionNed(&fapActualPosition);
     if(calculate_distance(fapActualPosition, clients[thread_id])>MAX_ALLOWED_DISTANCE_FROM_FAP_METERS){
@@ -210,24 +210,24 @@ char *handle_Gps_Update(int thread_id, JSON_Value *root) {
     object = json_value_get_object(root);
 
     json_object_set_number(
-		object, 
-		PROTOCOL_PARAMETERS_USER_ID, 
-		atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
-	); 
+        object, 
+        PROTOCOL_PARAMETERS_USER_ID, 
+        atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
+    ); 
     json_object_set_number(object, PROTOCOL_PARAMETERS_MSG_TYPE, response);
     strcpyTimestampIso8601(Time, time(NULL));
     json_object_set_string(object, PROTOCOL_PARAMETERS_GPS_TIMESTAMP, Time);
 
     string = json_serialize_to_string(root);
 
-	return string;
+    return string;
 }
 
 char *handle_association() {
     char *string = NULL;
     ProtocolMsgType response;
 
-	if(active_users < MAX_ASSOCIATED_USERS) { 
+    if(active_users < MAX_ASSOCIATED_USERS) { 
         pthread_mutex_lock(&lock);
         active_users++;
         pthread_mutex_unlock(&lock);
@@ -241,10 +241,10 @@ char *handle_association() {
     root_object = json_value_get_object(root_value);
  
     json_object_set_number(
-		root_object, 
-		PROTOCOL_PARAMETERS_USER_ID, 
-		atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
-	); 
+        root_object, 
+        PROTOCOL_PARAMETERS_USER_ID, 
+        atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
+    ); 
     json_object_set_number(
         root_object, 
         PROTOCOL_PARAMETERS_MSG_TYPE,
@@ -268,10 +268,10 @@ char *handle_desassociation() {
     root_object = json_value_get_object(root_value);
 
     json_object_set_number(
-		root_object, 
-		PROTOCOL_PARAMETERS_USER_ID, 
-		atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
-	); 
+        root_object, 
+        PROTOCOL_PARAMETERS_USER_ID, 
+        atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
+    ); 
     json_object_set_number(root_object, PROTOCOL_PARAMETERS_MSG_TYPE, response);
 
     string = json_serialize_to_string(root_value);
@@ -297,22 +297,22 @@ void *handler(void *thread_id) {
     char buffer[MAX_BUFFER]; 
     char *serialized_string = NULL;
 
-	while(threads[id].alarm_flag == 0) {
-		memset(buffer, 0, strlen(buffer));
-		if((recv(threads[id].socket, buffer, MAX_BUFFER, 0) <= 0)) {
+    while(threads[id].alarm_flag == 0) {
+        memset(buffer, 0, strlen(buffer));
+        if((recv(threads[id].socket, buffer, MAX_BUFFER, 0) <= 0)) {
              if(active_users>0){
                 threads[id].alarm_flag=TRUE;
                 pthread_mutex_lock(&lock);
                 active_users--;
                 pthread_mutex_unlock(&lock);
             }
-		  	fprintf(stderr, "Ending Connection \n");
-			break;
-		}
-		printf("New Message: %s\n", buffer);
-		root_value = json_parse_string(buffer);
-		root_object = json_value_get_object(root_value);
-		response = json_object_get_number(root_object, "msgType");
+            fprintf(stderr, "Ending Connection \n");
+            break;
+        }
+        printf("New Message: %s\n", buffer);
+        root_value = json_parse_string(buffer);
+        root_object = json_value_get_object(root_value);
+        response = json_object_get_number(root_object, "msgType");
         if(response == USER_ASSOCIATION_REQUEST) {
             threads[id].user_id = json_object_get_number(root_object, PROTOCOL_PARAMETERS_USER_ID);
             pthread_create(&alarm, NULL, handler_alarm, (void *) &id);
@@ -338,7 +338,7 @@ void *handler(void *thread_id) {
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
             break;
         }
-	}
+    }
 
     pthread_join(alarm, NULL);
     close(threads[id].socket);
@@ -356,60 +356,60 @@ void *WaitConnection(void *socket) {
     int sk_main = *(int *) socket;
 
     while(exit_flag == 0) { // ! acho que isto devia levar mutex;
-		int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
-		if(new < 0) {
-			perror("accept");
-			return (void *) RETURN_VALUE_ERROR; // ! exit() manda abaixo a main() que estiver a usar a API, em vez de lhe retornar um valor de erro (i.e., RETURN_VALUE_ERROR)
-		}
+        int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
+        if(new < 0) {
+            perror("accept");
+            return (void *) RETURN_VALUE_ERROR; // ! exit() manda abaixo a main() que estiver a usar a API, em vez de lhe retornar um valor de erro (i.e., RETURN_VALUE_ERROR)
+        }
 
-		int t = get_free_thread();
-		if(t != -1) {
-			threads[t].socket = new;
-			pthread_create(&threads[t].tid, NULL, handler, (void *) &t); 
-		} else {
-			fprintf(stderr, "Reached user limit. Dropping incoming connection.\n");
-		}
-	}
+        int t = get_free_thread();
+        if(t != -1) {
+            threads[t].socket = new;
+            pthread_create(&threads[t].tid, NULL, handler, (void *) &t); 
+        } else {
+            fprintf(stderr, "Reached user limit. Dropping incoming connection.\n");
+        }
+    }
 
     return (void *) RETURN_VALUE_OK;
 }
 
 void *sendHeartbeat() {
 
-	struct timespec start, stop, remaining;
+    struct timespec start, stop, remaining;
 
-	while(alive) {
-		if(clock_gettime(CLOCK_MONOTONIC, &start) < 0) {
-			perror("Error clocking heartbeat.");
-			alive = FALSE;
-			return (void *) RETURN_VALUE_ERROR;
-		}
+    while(alive) {
+        if(clock_gettime(CLOCK_MONOTONIC, &start) < 0) {
+            perror("Error clocking heartbeat.");
+            alive = FALSE;
+            return (void *) RETURN_VALUE_ERROR;
+        }
 
-		// send Mavlink message - HEARTBEAT
-		if(sendMavlinkMsg_heartbeat() != RETURN_VALUE_OK) {
-			fprintf(stderr, "Error sending Heartbeat message.");
-			alive = FALSE;
-			return (void *) RETURN_VALUE_ERROR;
-		}
+        // send Mavlink message - HEARTBEAT
+        if(sendMavlinkMsg_heartbeat() != RETURN_VALUE_OK) {
+            fprintf(stderr, "Error sending Heartbeat message.");
+            alive = FALSE;
+            return (void *) RETURN_VALUE_ERROR;
+        }
 
-		if(clock_gettime(CLOCK_MONOTONIC, &stop) < 0) {
-			perror("Error clocking heartbeat.");
-			alive = FALSE;
-			return (void *) RETURN_VALUE_ERROR;
-		}
+        if(clock_gettime(CLOCK_MONOTONIC, &stop) < 0) {
+            perror("Error clocking heartbeat.");
+            alive = FALSE;
+            return (void *) RETURN_VALUE_ERROR;
+        }
 
-		if(stop.tv_nsec < start.tv_nsec)
-			remaining.tv_nsec = HEARTBEAT_INTERVAL_NS - (1000000000L - start.tv_nsec + stop.tv_nsec);
-		else
-			remaining.tv_nsec = HEARTBEAT_INTERVAL_NS - (stop.tv_nsec - start.tv_nsec);
-		remaining.tv_sec = stop.tv_sec - start.tv_sec;
+        if(stop.tv_nsec < start.tv_nsec)
+            remaining.tv_nsec = HEARTBEAT_INTERVAL_NS - (1000000000L - start.tv_nsec + stop.tv_nsec);
+        else
+            remaining.tv_nsec = HEARTBEAT_INTERVAL_NS - (stop.tv_nsec - start.tv_nsec);
+        remaining.tv_sec = stop.tv_sec - start.tv_sec;
 
-		if(remaining.tv_sec < 0 || remaining.tv_nsec < 0)
-			continue;
-		nanosleep(&remaining, NULL);
-	}
+        if(remaining.tv_sec < 0 || remaining.tv_nsec < 0)
+            continue;
+        nanosleep(&remaining, NULL);
+    }
 
-	return (void *) RETURN_VALUE_OK;
+    return (void *) RETURN_VALUE_OK;
 }
 
 // =========================================================
@@ -423,24 +423,24 @@ int initializeFapManagementProtocol()
     int opt = 1;
 
     if(initializeMavlink() != RETURN_VALUE_OK 
-			|| sendMavlinkMsg_gpsGlobalOrigin(&fapOriginRawCoordinates) != RETURN_VALUE_OK)
-		return RETURN_VALUE_ERROR;
+            || sendMavlinkMsg_gpsGlobalOrigin(&fapOriginRawCoordinates) != RETURN_VALUE_OK)
+        return RETURN_VALUE_ERROR;
 
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         return RETURN_VALUE_ERROR;
     }
 
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
         perror("setsockopt");
         return RETURN_VALUE_ERROR;
     }
 
     address.sin_family = AF_INET;
-	//address.sin_addr.s_addr = SERVER_IP_ADDRESS;
+    address.sin_addr.s_addr = inet_addr(SERVER_IP_ADDRESS);
     address.sin_port = htons(SERVER_PORT_NUMBER);
 
-  	if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
+    if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
         perror("bind");
         return RETURN_VALUE_ERROR;
     }
@@ -462,15 +462,15 @@ int initializeFapManagementProtocol()
     }
 
     // Start heartbeat
-	alive = TRUE;
+    alive = TRUE;
 
-	if(pthread_create(&t_heartbeat, NULL, sendHeartbeat(), NULL) != 0) {
-		perror("Error starting heartbeat.");
-		return RETURN_VALUE_ERROR;
-	}
+    if(pthread_create(&t_heartbeat, NULL, sendHeartbeat(), NULL) != 0) {
+        perror("Error starting heartbeat.");
+        return RETURN_VALUE_ERROR;
+    }
 
 
-	return RETURN_VALUE_OK;
+    return RETURN_VALUE_OK;
 }
 
 
@@ -481,108 +481,108 @@ int terminateFapManagementProtocol()
 
     for(int i = 0; i < MAX_ASSOCIATED_USERS; i++){ // ! usar algo derivado de MAX_ASSOCIATED_USERS em vez de 11
         if(threads[i].status == 1){
-			shutdown(threads[i].socket, SHUT_RDWR);
-			if(pthread_join(threads[i].tid, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK))
-				fprintf(stderr, "Error exiting thread #%d: %s\n", i, strerror(errno));
-			else
-				fprintf(stderr, "Ending thread's id: %d\n", i);
-		}
-	}
+            shutdown(threads[i].socket, SHUT_RDWR);
+            if(pthread_join(threads[i].tid, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK))
+                fprintf(stderr, "Error exiting thread #%d: %s\n", i, strerror(errno));
+            else
+                fprintf(stderr, "Ending thread's id: %d\n", i);
+        }
+    }
 
     shutdown(server_fd, SHUT_RDWR);
     close(server_fd);
 
     if(pthread_join(t_main, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK)) {
-		perror("Error exiting server thread.");
+        perror("Error exiting server thread.");
         return RETURN_VALUE_ERROR;
-	}
+    }
 
-	// KILL HEARTBEAT
-	
+    // KILL HEARTBEAT
+    
     if(pthread_mutex_destroy(&lock)!=0){
         perror("Error destroying lock\n");
         return RETURN_VALUE_ERROR;
     }
-	alive = FALSE;
-	if((pthread_join(t_heartbeat, &retval) != 0) || ((intptr_t) retval != RETURN_VALUE_OK)) {
-		perror("Error stopping heartbeat.");
-		return RETURN_VALUE_ERROR;
-	}
+    alive = FALSE;
+    if((pthread_join(t_heartbeat, &retval) != 0) || ((intptr_t) retval != RETURN_VALUE_OK)) {
+        perror("Error stopping heartbeat.");
+        return RETURN_VALUE_ERROR;
+    }
 
-	return RETURN_VALUE_OK;
+    return RETURN_VALUE_OK;
 }
 
 
 int moveFapToGpsNedCoordinates(const GpsNedCoordinates *gpsNedCoordinates)
 {
-	// check if pointer is valid
-	if(gpsNedCoordinates == NULL) {
-		fprintf(stderr, "Can't move FAP to target NED coordinates: Invalid coordinates struct\n");
-		return RETURN_VALUE_ERROR;
-	}
+    // check if pointer is valid
+    if(gpsNedCoordinates == NULL) {
+        fprintf(stderr, "Can't move FAP to target NED coordinates: Invalid coordinates struct\n");
+        return RETURN_VALUE_ERROR;
+    }
 
-	// send Mavlink message - SET_POSITION_TARGET_LOCAL_NED
-	if(sendMavlinkMsg_setPositionTargetLocalNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
-		fprintf(stderr, "Can't move FAP to target NED coordinates: Error sending Mavlink message\n");
-		return RETURN_VALUE_ERROR;
-	}
+    // send Mavlink message - SET_POSITION_TARGET_LOCAL_NED
+    if(sendMavlinkMsg_setPositionTargetLocalNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
+        fprintf(stderr, "Can't move FAP to target NED coordinates: Error sending Mavlink message\n");
+        return RETURN_VALUE_ERROR;
+    }
 
-	// print status message
-	fprintf(stderr, "Moving FAP to NED coordinates: ");
-	PRINT_GPS_NED_COORDINATES((*gpsNedCoordinates));
+    // print status message
+    fprintf(stderr, "Moving FAP to NED coordinates: ");
+    PRINT_GPS_NED_COORDINATES((*gpsNedCoordinates));
 
-	return RETURN_VALUE_OK;
+    return RETURN_VALUE_OK;
 }
 
 
 int getFapGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates)
 {
-	// check if pointer has been initialized; if not, do it ourselves
-	if(gpsNedCoordinates == NULL)
-		gpsNedCoordinates = realloc(gpsNedCoordinates, sizeof(GpsNedCoordinates));
+    // check if pointer has been initialized; if not, do it ourselves
+    if(gpsNedCoordinates == NULL)
+        gpsNedCoordinates = realloc(gpsNedCoordinates, sizeof(GpsNedCoordinates));
 
-	// check realloc's success
-	if(gpsNedCoordinates == NULL)
-		return RETURN_VALUE_ERROR;
-		
-	// send Mavlink message - LOCAL_POSITION_NED
-	if(sendMavlinkMsg_localPositionNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
-		fprintf(stderr, "Can't obtain FAP NED coordinates: Error sending Mavlink message\n");
-		return RETURN_VALUE_ERROR;
-	}
+    // check realloc's success
+    if(gpsNedCoordinates == NULL)
+        return RETURN_VALUE_ERROR;
+        
+    // send Mavlink message - LOCAL_POSITION_NED
+    if(sendMavlinkMsg_localPositionNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
+        fprintf(stderr, "Can't obtain FAP NED coordinates: Error sending Mavlink message\n");
+        return RETURN_VALUE_ERROR;
+    }
 
-	// print status message
-	fprintf(stderr, "FAP is at NED coordinates: ");
-	PRINT_GPS_NED_COORDINATES((*gpsNedCoordinates));
+    // print status message
+    fprintf(stderr, "FAP is at NED coordinates: ");
+    PRINT_GPS_NED_COORDINATES((*gpsNedCoordinates));
 
-	return RETURN_VALUE_OK;
+    return RETURN_VALUE_OK;
 }
 
 
 int getAllUsersGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, int *n)
 {
-	// ! é melhor: ou usar mutex, ou guardar uma cópia de clients (para além de active_users) logo no início da função
-	int aux = active_users;
+    // ! é melhor: ou usar mutex, ou guardar uma cópia de clients (para além de active_users) logo no início da função
+    int aux = active_users;
 
-	// making sure there's enough space to accomodate all users' coordinates
-	gpsNedCoordinates = realloc(gpsNedCoordinates, aux*sizeof(GpsNedCoordinates));
-	if(gpsNedCoordinates == NULL)
-		return RETURN_VALUE_ERROR;
+    // making sure there's enough space to accomodate all users' coordinates
+    gpsNedCoordinates = realloc(gpsNedCoordinates, aux*sizeof(GpsNedCoordinates));
+    if(gpsNedCoordinates == NULL)
+        return RETURN_VALUE_ERROR;
 
     (*n) = 0;
 
     for(int i = 0; i < 254; i++) { // ! talvez MAX_ASSOCIATED_USERS em vez de 254 (mesmo que seja uma rede /24)
         if(strcmp(clients[i].timestamp, "") != 0) {
-			//check if user number increased since previous realloc
-			if((*n)+1 > aux) {
-				gpsNedCoordinates = realloc(gpsNedCoordinates, (++aux)*sizeof(GpsNedCoordinates));
-				if(gpsNedCoordinates == NULL)
-					return RETURN_VALUE_ERROR;
-			}
-			gpsNedCoordinates[(*n)] = clients[i];
+            //check if user number increased since previous realloc
+            if((*n)+1 > aux) {
+                gpsNedCoordinates = realloc(gpsNedCoordinates, (++aux)*sizeof(GpsNedCoordinates));
+                if(gpsNedCoordinates == NULL)
+                    return RETURN_VALUE_ERROR;
+            }
+            gpsNedCoordinates[(*n)] = clients[i];
             (*n)++;
         }
     }
 
-	return RETURN_VALUE_OK;
+    return RETURN_VALUE_OK;
 }
