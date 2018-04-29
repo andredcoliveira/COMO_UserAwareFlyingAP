@@ -1,4 +1,4 @@
 # User-Aware Flying AP Project
 
 * Task: FAP Management Protocol - Server
-* Version: v3
+* Version: v4

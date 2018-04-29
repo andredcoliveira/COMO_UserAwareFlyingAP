@@ -146,8 +146,8 @@ int areGpsRawCoordinatesEqual(const GpsRawCoordinates *grc1, const GpsRawCoordin
 {
 	return ((grc1->latitude == grc2->latitude) &&
 			(grc1->longitude == grc2->longitude) &&
-			(grc1->altitude == grc2->altitude) &&
-			(strcmp(grc1->timestamp, grc2->timestamp) == 0));
+			(grc1->altitude == grc2->altitude));// &&
+			//(strcmp(grc1->timestamp, grc2->timestamp) == 0));
 }
 
 
@@ -155,8 +155,8 @@ int areGpsNedCoordinatesEqual(const GpsNedCoordinates *gnc1, const GpsNedCoordin
 {
 	return ((gnc1->x == gnc2->x) &&
 			(gnc1->y == gnc2->y) &&
-			(gnc1->z == gnc2->z) &&
-			(strcmp(gnc1->timestamp, gnc2->timestamp) == 0));
+			(gnc1->z == gnc2->z)); // &&
+			//(strcmp(gnc1->timestamp, gnc2->timestamp) == 0));
 }
 
 
@@ -197,5 +197,6 @@ int gpsRawCoordinates2gpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, co
 int strcpyTimestampIso8601(char *destStr, time_t timestamp)
 {
 	strftime(destStr, TIMESTAMP_ISO8601_SIZE, "%Y-%m-%dT%H:%M:%SZ", gmtime(&timestamp));
+
 	return RETURN_VALUE_OK;
 }
