@@ -106,7 +106,7 @@ struct sockaddr_in address;
 int alarm_flag = FALSE;
 int exit_flag = FALSE;
 int addrlen = sizeof(address);
-threads_clients threads[MAX_ASSOCIATED_USERS+1]; 
+threads_clients threads[MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS]; 
 pthread_mutex_t lock;
 pthread_t t_main;
 int active_users = 0;
@@ -424,7 +424,7 @@ void *sendHeartbeat() {
 int initializeFapManagementProtocol()
 {
     memset(clients, 0, sizeof(clients));
-    memset(&threads, 0 , (MAX_ASSOCIATED_USERS+1)*sizeof(threads_clients));  // ! nr max de threads deve depender de MAX_ASSOCIATED_USERS (pq 11 e não 10?)
+    memset(&threads, 0 , (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS)*sizeof(threads_clients)); 
     int opt = 1;
 
     if(initializeMavlink() != RETURN_VALUE_OK 
@@ -484,7 +484,7 @@ int terminateFapManagementProtocol()
     exit_flag = 1;
     void *retval;
 
-    for(int i = 0; i < MAX_ASSOCIATED_USERS; i++){ // ! usar algo derivado de MAX_ASSOCIATED_USERS em vez de 11
+    for(int i = 0; i < (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS); i++){
         if(threads[i].status == 1){
             shutdown(threads[i].socket, SHUT_RDWR);
             if(pthread_join(threads[i].tid, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK))
@@ -576,7 +576,7 @@ int getAllUsersGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, int *n)
 
     (*n) = 0;
 
-    for(int i = 0; i < 254; i++) { // ! talvez MAX_ASSOCIATED_USERS em vez de 254 (mesmo que seja uma rede /24)
+    for(int i = 0; i < MAX_ASSOCIATED_USERS; i++) { 
         if(strcmp(clients[i].timestamp, "") != 0) {
             //check if user number increased since previous realloc
             if((*n)+1 > aux) {
