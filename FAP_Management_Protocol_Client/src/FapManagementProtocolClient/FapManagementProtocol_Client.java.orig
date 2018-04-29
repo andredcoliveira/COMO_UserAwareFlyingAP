@@ -71,15 +71,6 @@ public class FapManagementProtocol_Client
 	//TODO: check if duplicated code can be reduced
 
 	/**
-	 * Constructor.
-	 */
-	public FapManagementProtocol_Client()
-	{
-		// TODO: Implement function
-	}
-
-
-	/**
 	 * Request a user association to the FAP.
 	 *
 	 * @return		True / false if the request was accepted / rejected
