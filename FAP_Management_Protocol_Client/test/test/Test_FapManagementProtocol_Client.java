@@ -9,6 +9,8 @@
 package test;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Random;
 
 import FapManagementProtocolClient.*;
@@ -26,13 +28,13 @@ public class Test_FapManagementProtocol_Client
 	// Limits of the users GPS coordinates
 //	private static final float USERS_LATITUDE_MIN =		-8.601089;
 //	private static final float USERS_LATITUDE_MAX =		-8.594566;
-	private static final float USERS_LATITUDE_MIN =		-8.601089f;
-	private static final float USERS_LATITUDE_MAX =		-8.594566f;
+	private static final float USERS_LONGITUDE_MIN =	-8.601089f;
+	private static final float USERS_LONGITUDE_MAX =	-8.594566f;
 
 //	private static final float USERS_LONGITUDE_MIN =	41.175590;
 //	private static final float USERS_LONGITUDE_MAX =	41.180524;
-	private static final float USERS_LONGITUDE_MIN =	41.175590f;
-	private static final float USERS_LONGITUDE_MAX =	41.180524f;
+	private static final float USERS_LATITUDE_MIN =		41.175590f;
+	private static final float USERS_LATITUDE_MAX =		41.180524f;
 
 
 	// =========================================================
@@ -97,7 +99,7 @@ public class Test_FapManagementProtocol_Client
 			float longitude = USERS_LONGITUDE_MIN + random.nextFloat() * (USERS_LONGITUDE_MAX - USERS_LONGITUDE_MIN);
 
 //			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, new LocalDateTime());
-			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, LocalDateTime.now());
+			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, LocalDateTime.now(ZoneOffset.UTC));
 
 
 			// Send GPS coordinates

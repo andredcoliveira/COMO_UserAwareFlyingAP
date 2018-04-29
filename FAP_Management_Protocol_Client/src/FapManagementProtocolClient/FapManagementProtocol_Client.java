@@ -10,9 +10,6 @@ package FapManagementProtocolClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,7 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 
 
@@ -66,17 +63,26 @@ public class FapManagementProtocol_Client
 
 
 	// =========================================================
-	//           PUBLIC API
+	//           Class Parameters
 	// =========================================================
 
-	//TODO: check if duplicated code can be reduced
+	private Socket socket;
+	private ObjectMapper objectMapper;
+	private int userId;
+
+
+	// =========================================================
+	//           PUBLIC API
+	// =========================================================
 
 	/**
 	 * Constructor.
 	 */
-	public FapManagementProtocol_Client()
-	{
-		// TODO: Implement function
+	public FapManagementProtocol_Client() {
+		this.socket = new Socket();
+		this.objectMapper = new ObjectMapper();
+		/* Replace with getUserIdExternal() if server address isn't local */
+		this.userId = getUserIdLocal();
 	}
 
 
@@ -88,67 +94,69 @@ public class FapManagementProtocol_Client
 	 */
 	public boolean requestUserAssociation() {
 
-		/* Replace with getUserIdExternal() if server address isn't local */
-		int userId = getUserIdLocal();
-		if(userId < 0)
-			return RETURN_VALUE_ERROR;
+		if(this.userId < 0) {
+			if((this.userId = getUserIdLocal()) < 0)
+				return RETURN_VALUE_ERROR;
+		}
+		if(this.objectMapper == null)
+			this.objectMapper = new ObjectMapper();
 
 
 		/* Create JSON formatted String with data */
 		LinkedHashMap<String, Object> data = new LinkedHashMap<>();
-		data.put(PROTOCOL_PARAMETERS_USER_ID, userId);
+		data.put(PROTOCOL_PARAMETERS_USER_ID, this.userId);
 		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.USER_ASSOCIATION_REQUEST.getMsgTypeValue());
 
-		ObjectMapper objectMapper = new ObjectMapper();
+//		ObjectMapper objectMapper = new ObjectMapper();
 		String msg;
 		try {
-			msg = objectMapper.writeValueAsString(data);
+			msg = this.objectMapper.writeValueAsString(data);
 		} catch (JsonProcessingException e) {
 			return RETURN_VALUE_ERROR;
 		}
 
+
 		/* Open socket for communication with server */
-		Socket socket = new Socket();
-		if(!connectSocket(socket, USER_ASSOCIATION_TIMEOUT_SECONDS))
+//		Socket socket = new Socket();
+		if(!connectSocket(this.socket, USER_ASSOCIATION_TIMEOUT_SECONDS))
 			return RETURN_VALUE_ERROR;
 
 
 		/* Send JSON message through socket */
-		if(!sendMsg(msg, socket))
-			return closeSocket(socket, RETURN_VALUE_ERROR);
-
+		if(!sendMsg(msg, this.socket))
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 		/* Set the timeout value and read response from socket */
 		try {
-			socket.setSoTimeout(USER_ASSOCIATION_TIMEOUT_SECONDS*1000);
+			this.socket.setSoTimeout(USER_ASSOCIATION_TIMEOUT_SECONDS*1000);
 		} catch (SocketException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
 		BufferedReader in;
 		try {
 			 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch (IOException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
-
 
 		/* Parse response and check its values */
 		LinkedHashMap response;
 		try {
-			response = objectMapper.readValue(in, LinkedHashMap.class);
+			response = this.objectMapper.readValue(in, LinkedHashMap.class);
 		} catch (IOException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 
-		if(responseId != userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
 		/* If the function reached this point, everything must be OK */
-		return closeSocket(socket, RETURN_VALUE_OK);
+		return RETURN_VALUE_OK;
 	}
 
 
@@ -160,67 +168,69 @@ public class FapManagementProtocol_Client
 	 */
 	public boolean requestUserDesassociation() {
 
-		/* Replace with getUserIdExternal() if server address isn't local */
-		int userId = getUserIdLocal();
-		if(userId < 0)
-			return RETURN_VALUE_ERROR;
+		if(this.userId < 0) {
+			if((this.userId = getUserIdLocal()) < 0)
+				return RETURN_VALUE_ERROR;
+		}
+		if(this.objectMapper == null)
+			this.objectMapper = new ObjectMapper();
 
 
 		/* Create JSON formatted String with data */
 		LinkedHashMap<String, Object> data = new LinkedHashMap<>();
-		data.put(PROTOCOL_PARAMETERS_USER_ID, userId);
+		data.put(PROTOCOL_PARAMETERS_USER_ID, this.userId);
 		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.USER_DESASSOCIATION_REQUEST.getMsgTypeValue());
 
-		ObjectMapper objectMapper = new ObjectMapper();
+//		ObjectMapper objectMapper = new ObjectMapper();
 		String msg;
 		try {
-			msg = objectMapper.writeValueAsString(data);
+			msg = this.objectMapper.writeValueAsString(data);
 		} catch (JsonProcessingException e) {
 			return RETURN_VALUE_ERROR;
 		}
 
 
 		/* Open socket for communication with server */
-		Socket socket = new Socket();
-		if(!connectSocket(socket, USER_DESASSOCIATION_TIMEOUT_SECONDS))
-			return RETURN_VALUE_ERROR;
+//		Socket socket = new Socket();
+//		if(!connectSocket(this.socket, USER_DESASSOCIATION_TIMEOUT_SECONDS))
+//			return RETURN_VALUE_ERROR;
 
 
 		/* Send JSON message through socket */
-		if(!sendMsg(msg, socket))
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+		if(!sendMsg(msg, this.socket))
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 
 		/* Set the timeout value and read response from socket */
 		try {
-			socket.setSoTimeout(USER_DESASSOCIATION_TIMEOUT_SECONDS*1000);
+			this.socket.setSoTimeout(USER_DESASSOCIATION_TIMEOUT_SECONDS*1000);
 		} catch (SocketException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
 		BufferedReader in;
 		try {
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		} catch (IOException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
 
 		/* Parse response and check its values */
 		LinkedHashMap response;
 		try {
-			response = objectMapper.readValue(in, LinkedHashMap.class);
+			response = this.objectMapper.readValue(in, LinkedHashMap.class);
 		} catch (IOException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 
-		if(responseId != userId || responseMsgType != ProtocolMsgType.USER_DESASSOCIATION_ACK.getMsgTypeValue()) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_DESASSOCIATION_ACK.getMsgTypeValue()) {
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		return closeSocket(socket, RETURN_VALUE_OK);
+		return closeSocket(this.socket, RETURN_VALUE_OK);
 	}
 
 
@@ -233,99 +243,103 @@ public class FapManagementProtocol_Client
 	 */
 	public boolean sendGpsCoordinatesToFap(GpsCoordinates gpsCoordinates) {
 		if(gpsCoordinates == null)
-			return RETURN_VALUE_ERROR;
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
+		if(this.userId < 0) {
+			if((this.userId = getUserIdLocal()) < 0)
+				return RETURN_VALUE_ERROR;
+		}
+		if(this.objectMapper == null)
+			this.objectMapper = new ObjectMapper();
 
-
-		/* Replace with getUserIdExternal() if server address isn't local */
-		int userId = getUserIdLocal();
-		if(userId < 0)
-			return RETURN_VALUE_ERROR;
-
+		System.out.println("Aqui 1"); //DEBUG
 
 		/* Create JSON formatted String with data */
 		LinkedHashMap<Object, Object> data = new LinkedHashMap<>();
-		data.put(PROTOCOL_PARAMETERS_USER_ID, userId);
+		data.put(PROTOCOL_PARAMETERS_USER_ID, this.userId);
 		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.GPS_COORDINATES_UPDATE.getMsgTypeValue());
-		data.put(PROTOCOL_PARAMETERS_GPS_COORDINATES, gpsCoordinates);
 
-		/* Standardize field names here since GpsCoordinates can't access these private constants
-		 * in order to use @SerializedName(<name>) */
-		PropertyNamingStrategy customStrategy = new PropertyNamingStrategy(){
-			public String nameForGetterMethod(
-					MapperConfig<?> config,
-					AnnotatedMethod method,
-					String defaultName)
-			{
-				if(defaultName.equals("latitude")) {
-					return PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT;
-				}
-				if(defaultName.equals("longitude")) {
-					return PROTOCOL_PARAMETERS_GPS_COORDINATES_LON;
-				}
-				if(defaultName.equals("altitude")) {
-					return PROTOCOL_PARAMETERS_GPS_COORDINATES_ALT;
-				}
-				return defaultName;
-			}
-		};
+		LinkedHashMap<Object, Object> gpsCoordinatesData = new LinkedHashMap<>();
+		gpsCoordinatesData.put(PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT, gpsCoordinates.getLatitude());
+		gpsCoordinatesData.put(PROTOCOL_PARAMETERS_GPS_COORDINATES_LON, gpsCoordinates.getLongitude());
+		gpsCoordinatesData.put(PROTOCOL_PARAMETERS_GPS_COORDINATES_ALT, gpsCoordinates.getAltitude());
+		gpsCoordinatesData.put(
+			PROTOCOL_PARAMETERS_GPS_COORDINATES_TIMESTAMP,
+			gpsCoordinates.getTimestamp().withNano(0).atZone(ZoneOffset.UTC).toString()
+		);
 
-		ObjectMapper objectMapper = new ObjectMapper().setPropertyNamingStrategy(customStrategy);
+		data.put(PROTOCOL_PARAMETERS_GPS_COORDINATES, gpsCoordinatesData);
+
+		System.out.println("Aqui 2"); //DEBUG
+
+//		ObjectMapper objectMapper = new ObjectMapper();
 		String msg;
 		try {
-			msg = objectMapper.writeValueAsString(data);
+			msg = this.objectMapper.writeValueAsString(data);
 		} catch (JsonProcessingException e) {
-			return RETURN_VALUE_ERROR;
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
 
-		/* Open socket for communication with server */
-		Socket socket = new Socket();
-		if(!connectSocket(socket, GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS))
-			return RETURN_VALUE_ERROR;
+		System.out.println("Aqui 3"); //DEBUG
 
+		/* Open socket for communication with server */
+//		Socket socket = new Socket();
+//		if(!connectSocket(this.socket, GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS))
+//			return RETURN_VALUE_ERROR;
 
 		/* Send JSON message through socket */
-		if(!sendMsg(msg, socket))
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+		if(!sendMsg(msg, this.socket))
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
+
+		System.out.println("Aqui 4"); //DEBUG
 
 		/* Set the timeout value and read response from socket */
 		try {
-			socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000);
+			this.socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000);
 		} catch (SocketException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
+		System.out.println("Aqui 5"); //DEBUG
 
 		BufferedReader in;
 		try {
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch (IOException e) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		System.out.println("Aqui 6"); //DEBUG
 
 		/* Parse response and check its values */
 		LinkedHashMap response = null;
 		try {
-			response = objectMapper.readValue(in, LinkedHashMap.class);
+			response = this.objectMapper.readValue(in, LinkedHashMap.class);
 		} catch (IOException e) {
-			closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		System.out.println("Aqui 7"); //DEBUG
+
 		if(response == null)
-			closeSocket(socket, RETURN_VALUE_ERROR);
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 		String responseTimestamp = response.get(PROTOCOL_PARAMETERS_GPS_TIMESTAMP).toString();
 
-		if(responseId != userId
+		System.out.println("Aqui 8"); //DEBUG
+
+		if(responseId != this.userId
 				|| responseMsgType != ProtocolMsgType.GPS_COORDINATES_ACK.getMsgTypeValue()
-				|| !responseTimestamp.equals(gpsCoordinates.toString())) {
-			return closeSocket(socket, RETURN_VALUE_ERROR);
+				|| !responseTimestamp.equals(gpsCoordinates.getTimestamp().withNano(0).atZone(ZoneOffset.UTC).toString())) {
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		return closeSocket(socket, RETURN_VALUE_OK);
+		System.out.println("Aqui 9"); //DEBUG
+
+		return RETURN_VALUE_OK;
 	}
 
 
@@ -392,7 +406,9 @@ public class FapManagementProtocol_Client
 		try {
 			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
 			out.write(msg);
+			out.flush();
 		} catch (IOException e) {
+			e.printStackTrace(); //DEBUG
 			return false;
 		}
 
@@ -403,11 +419,12 @@ public class FapManagementProtocol_Client
 	 * @param socket 	Socket to be closed
 	 */
 	private boolean closeSocket(Socket socket, boolean retval) {
+		System.out.println("closeSocket()"); //DEBUG
 		if(socket != null && socket.isConnected()) {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				//no need for catch, function is returning error already
+				return RETURN_VALUE_ERROR;
 			}
 		}
 
