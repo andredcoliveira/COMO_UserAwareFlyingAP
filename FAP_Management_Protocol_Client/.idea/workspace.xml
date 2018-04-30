@@ -5,6 +5,8 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.c" beforeDir="false" afterPath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.h" beforeDir="false" afterPath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.h" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -32,12 +34,13 @@
       <file leaf-file-name="FapManagementProtocol_Client.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="155" column="8" selection-start-line="155" selection-start-column="8" selection-end-line="155" selection-end-column="8" />
+            <state relative-caret-position="139">
+              <caret line="220" lean-forward="true" selection-start-line="220" selection-end-line="220" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
-                <element signature="method#requestUserDesassociation#0;class#FapManagementProtocol_Client#0" />
+                <element signature="e#12280#12668#0" />
+                <element signature="e#12960#13196#0" />
               </folding>
             </state>
           </provider>
@@ -46,8 +49,8 @@
       <file leaf-file-name="Test_FapManagementProtocol_Client.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="91" selection-start-line="91" selection-end-line="91" />
+            <state relative-caret-position="93">
+              <caret line="71" column="63" selection-start-line="71" selection-start-column="63" selection-end-line="71" selection-end-column="63" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -73,8 +76,8 @@
       <file leaf-file-name="ProtocolMsgType.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="32" selection-start-line="32" selection-end-line="32" />
+            <state relative-caret-position="262">
+              <caret line="22" column="40" selection-start-line="22" selection-start-column="40" selection-end-line="22" selection-end-column="40" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="e#935#936#0" expanded="true" />
@@ -93,6 +96,9 @@
       <find>//DEBUG</find>
       <find>objectMapper</find>
       <find>connectSocket</find>
+      <find>e.print</find>
+      <find>sendMsg</find>
+      <find>DEBUG</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -117,6 +123,12 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
+  <component name="MavenProjectNavigator">
+    <treeState>
+      <expand />
+      <select />
+    </treeState>
+  </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="10" />
     <option name="y" value="20" />
@@ -129,6 +141,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -162,9 +176,7 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
-      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -176,7 +188,7 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="com.intellij.jarRepository.settings.RemoteRepositoriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
     <UpdatedFiles>
@@ -193,6 +205,7 @@
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UPDATED" />
           <PATH vcs="Git" revision="">$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.c</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.h</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Created" />
@@ -300,8 +313,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
-    <configuration name="Test_FapManagementProtocol_Client" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Multirun.Multi-clients_FAP_25">
+    <configuration name="Test_FapManagementProtocol_Client" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
       <module name="FAP_Management_Protocol_Client" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -311,6 +324,56 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_10" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_11" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_3" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_4" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_5" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_6" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_7" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_8" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    </configuration>
+    <configuration name="Test_FapManagementProtocol_Client_9" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
+      <module name="FAP_Management_Protocol_Client" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -330,6 +393,38 @@
         <value defaultName="singleModule" />
       </option>
       <patterns />
+    </configuration>
+    <configuration name="Multi-clients_FAP_11" type="Multirun" factoryName="Multirun" separateTabs="true" startOneByOne="false" markFailedProcess="true" hideSuccessProcess="false" delayTime="0">
+      <runConfiguration name="Test_FapManagementProtocol_Client" type="Application" />
+      <method>
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+      </method>
+    </configuration>
+    <configuration name="Multi-clients_FAP_25" type="Multirun" factoryName="Multirun" separateTabs="true" startOneByOne="false" markFailedProcess="true" hideSuccessProcess="false" delayTime="0">
+      <runConfiguration name="Test_FapManagementProtocol_Client" type="Application" />
+      <method>
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Multi-clients_FAP_11" run_configuration_type="Multirun" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Multi-clients_FAP_11" run_configuration_type="Multirun" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+      </method>
+    </configuration>
+    <configuration name="Multi-clients_FAP_4" type="Multirun" factoryName="Multirun" separateTabs="true" startOneByOne="false" markFailedProcess="true" hideSuccessProcess="false" delayTime="0">
+      <runConfiguration name="Test_FapManagementProtocol_Client" type="Application" />
+      <method>
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test_FapManagementProtocol_Client" run_configuration_type="Application" />
+      </method>
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -353,11 +448,22 @@
       <properties />
       <listeners />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Application.Test_FapManagementProtocol_Client" />
-      </list>
-    </recent_temporary>
+    <list>
+      <item itemvalue="Application.Test_FapManagementProtocol_Client" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_2" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_3" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_4" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_5" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_6" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_7" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_8" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_9" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_10" />
+      <item itemvalue="Application.Test_FapManagementProtocol_Client_11" />
+      <item itemvalue="Multirun.Multi-clients_FAP_11" />
+      <item itemvalue="Multirun.Multi-clients_FAP_25" />
+      <item itemvalue="Multirun.Multi-clients_FAP_4" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -372,7 +478,8 @@
       <workItem from="1522960889429" duration="2406000" />
       <workItem from="1523387553060" duration="1152000" />
       <workItem from="1525026691679" duration="18020000" />
-      <workItem from="1525046683131" duration="8589000" />
+      <workItem from="1525046683131" duration="8892000" />
+      <workItem from="1525055890739" duration="8015000" />
     </task>
     <task id="LOCAL-00001" summary="Ready for testing.">
       <created>1525029824943</created>
@@ -388,11 +495,18 @@
       <option name="project" value="LOCAL" />
       <updated>1525045350421</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Finished project.">
+      <created>1525055451113</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1525055451113</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="30167000" />
+    <option name="totallyTimeSpent" value="38485000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -405,7 +519,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.31611893" />
@@ -414,14 +527,14 @@
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="5" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50075644" side_tool="true" weight="0.42532468" />
-      <window_info anchor="right" id="Maven Projects" order="6" />
+      <window_info anchor="right" id="Maven Projects" order="6" weight="0.32980332" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49924356" visible="true" weight="0.46753246" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49924356" weight="0.7435065" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1429652" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1452345" />
       <window_info anchor="right" id="Database" order="8" weight="0.32980332" />
       <window_info id="Learn" order="2" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -451,7 +564,8 @@
     <MESSAGE value="Ready for test" />
     <MESSAGE value="Ready for testing." />
     <MESSAGE value="Used constructor and class parameters." />
-    <option name="LAST_COMMIT_MESSAGE" value="Used constructor and class parameters." />
+    <MESSAGE value="Finished project." />
+    <option name="LAST_COMMIT_MESSAGE" value="Finished project." />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -460,12 +574,61 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2635">
+          <caret line="155" selection-start-line="155" selection-end-line="155" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#12280#12668#0" />
+            <element signature="e#12960#13196#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1547">
+          <caret line="91" selection-start-line="91" selection-end-line="91" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/GpsCoordinates.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3128">
+          <caret line="184" column="16" selection-start-line="184" selection-start-column="16" selection-end-line="184" selection-end-column="16" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#4261#4262#0" expanded="true" />
+            <element signature="e#4294#4295#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="32" selection-start-line="32" selection-end-line="32" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#935#936#0" expanded="true" />
+            <element signature="e#965#966#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2074">
           <caret line="122" selection-start-line="122" selection-end-line="122" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="method#requestUserDesassociation#0;class#FapManagementProtocol_Client#0" />
+            <element signature="e#12280#12668#0" />
+            <element signature="e#12960#13196#0" />
           </folding>
         </state>
       </provider>
@@ -512,7 +675,8 @@
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="method#requestUserDesassociation#0;class#FapManagementProtocol_Client#0" />
+            <element signature="e#12280#12668#0" />
+            <element signature="e#12960#13196#0" />
           </folding>
         </state>
       </provider>
@@ -556,18 +720,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="32" selection-start-line="32" selection-end-line="32" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#935#936#0" expanded="true" />
-            <element signature="e#965#966#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/GpsCoordinates.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2771">
@@ -587,17 +739,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="91" selection-start-line="91" selection-end-line="91" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Documents/GitHub/COMO_User-Aware-Flying-AP-Project/FAP_Management_Protocol_Client/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="343">
@@ -605,14 +746,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="155" column="8" selection-start-line="155" selection-start-column="8" selection-end-line="155" selection-end-column="8" />
+        <state relative-caret-position="262">
+          <caret line="22" column="40" selection-start-line="22" selection-start-column="40" selection-end-line="22" selection-end-column="40" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#935#936#0" expanded="true" />
+            <element signature="e#965#966#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="93">
+          <caret line="71" column="63" selection-start-line="71" selection-start-column="63" selection-end-line="71" selection-end-column="63" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="method#requestUserDesassociation#0;class#FapManagementProtocol_Client#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="139">
+          <caret line="220" lean-forward="true" selection-start-line="220" selection-end-line="220" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#12280#12668#0" />
+            <element signature="e#12960#13196#0" />
           </folding>
         </state>
       </provider>

@@ -205,7 +205,7 @@ char *handle_Gps_Update(int thread_id, JSON_Value *root) {
     //Determine Fap Actual Position
     sendMavlinkMsg_localPositionNed(&fapActualPosition);
     if(calculate_distance(fapActualPosition, clients[thread_id])>MAX_ALLOWED_DISTANCE_FROM_FAP_METERS){
-        FAP_SERVER_PRINT("Distance Higher than 300m.");
+        FAP_SERVER_PRINT("Distance longer than 300m.");
         return NULL;
     }
     //Create Response
@@ -295,6 +295,9 @@ void *handler(void *thread_id) {
     int max_sd;
     struct timeval timeout;
 
+	int bad = 0;
+	int res = 0;
+
     // JSON inicialization 
     JSON_Value *root_value;
     JSON_Object *root_object;
@@ -304,26 +307,47 @@ void *handler(void *thread_id) {
     pthread_t alarm;
     char buffer[MAX_BUFFER]; 
     char *serialized_string = NULL;
-    pthread_create(&alarm, NULL, handler_alarm, (void *) &id);
+
+    if(pthread_create(&alarm, NULL, handler_alarm, (void *) &id) != 0) {
+		FAP_SERVER_PRINT("Error starting GPS Coordinates update handler thread");
+	}
+
     while(threads[id].alarm_flag == 0) {
+		if(bad >= 1) {
+			// timed out
+			threads[id].alarm_flag = TRUE;
+			FAP_SERVER_PRINT("Reached attempt limit. Ending connection.");
+			break;
+		}
+
         memset(buffer, 0, strlen(buffer));
         FD_ZERO(&readfds);
         FD_SET(threads[id].socket, &readfds);
         max_sd = threads[id].socket;
         timeout.tv_sec = GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1.5; 
-        timeout.tv_usec = 0; 
-        if(select( max_sd + 1 , &readfds , NULL , NULL , &timeout)<=0){
-            threads[id].alarm_flag=1;
+        timeout.tv_usec = 0;
+
+		res = select(max_sd + 1, &readfds, NULL, NULL, &timeout);
+		if(res == -1) {
+			threads[id].alarm_flag = TRUE;
             FAP_SERVER_PRINT("Error when using Select.");
             break;
-        }
-        if((recv(threads[id].socket, buffer, MAX_BUFFER, 0) <= 0)) {
-            threads[id].alarm_flag=TRUE;
-            FAP_SERVER_PRINT("Ending Connection.");
-            break;
-        }
+		} else if(res == 0) {
+			bad++;
+			memset(buffer, 0, strlen(buffer));
+			FAP_SERVER_PRINT("Timed-out. Trying again..");
+			continue;
+		} else if(FD_ISSET(threads[id].socket, &readfds)) {
+			// socket has data
+			if(recv(threads[id].socket, buffer, MAX_BUFFER, 0) <= 0) {
+				threads[id].alarm_flag = TRUE;
+				FAP_SERVER_PRINT("Ending Connection.");
+				break;
+			}
+		}
+
         root_value = json_parse_string(buffer);
-        FAP_SERVER_PRINT("New Message: %s\n",json_serialize_to_string_pretty(root_value));
+        FAP_SERVER_PRINT("New Message: \n%s\n", json_serialize_to_string_pretty(root_value));
         root_object = json_value_get_object(root_value);
         response = json_object_get_number(root_object, "msgType");
         if(response == USER_ASSOCIATION_REQUEST) {
@@ -334,18 +358,18 @@ void *handler(void *thread_id) {
         }
         else if(response == GPS_COORDINATES_UPDATE) {    
             serialized_string = handle_Gps_Update(id, root_value);
-            if(serialized_string==NULL){
-                threads[id].alarm_flag=TRUE;
+            if(serialized_string == NULL){
+                threads[id].alarm_flag = TRUE;
                 break;
             }
-            FAP_SERVER_PRINT("Gps Coordinates Updated\nUser_ID:%d",threads[id].user_id);
+            FAP_SERVER_PRINT("Gps Coordinates Updated [User ID - %d]",threads[id].user_id);
             send(threads[id].socket, serialized_string, strlen(serialized_string),0);
         }
         else if((response == USER_DESASSOCIATION_REQUEST) && (active_users>0)) {
             serialized_string = handle_desassociation();
-            FAP_SERVER_PRINT("Active Users: %d", active_users);
+            FAP_SERVER_PRINT("Active Users: %d", active_users - 1);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
-            threads[id].alarm_flag=TRUE;
+            threads[id].alarm_flag = TRUE;
             break;
         }
     }
@@ -354,7 +378,7 @@ void *handler(void *thread_id) {
     threads[id].alarm_flag = FALSE;
     threads[id].user_id = 0;
     threads[id].status = 0;
-    if(active_users>0){
+    if(active_users > 0){
         pthread_mutex_lock(&lock);
         active_users--;
         pthread_mutex_unlock(&lock);
@@ -369,17 +393,20 @@ void *handler(void *thread_id) {
 void *WaitConnection(void *socket) {
     int sk_main = *(int *) socket;
 
-    while(exit_flag == 0) { // ! acho que isto devia levar mutex;
+    while(exit_flag == 0) {
         int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
         if(new < 0) {
-            FAP_SERVER_PRINT("Error accept.");
-            return (void *) RETURN_VALUE_ERROR; // ! exit() manda abaixo a main() que estiver a usar a API, em vez de lhe retornar um valor de erro (i.e., RETURN_VALUE_ERROR)
+            FAP_SERVER_PRINT("Error accepting connection.");
+            return (void *) RETURN_VALUE_ERROR;
         }
 
         int t = get_free_thread();
         if(t != -1) {
             threads[t].socket = new;
-            pthread_create(&threads[t].tid, NULL, handler, (void *) &t); 
+            if(pthread_create(&threads[t].tid, NULL, handler, (void *) &t) != 0) {
+				FAP_SERVER_PRINT("Error starting a handler thread.");
+				return (void *) RETURN_VALUE_ERROR;
+			}
         } else {
             FAP_SERVER_PRINT("Reached user limit. Dropping incoming connection.");
         }
@@ -459,7 +486,7 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
     }
 
-    if (listen(server_fd, 3) < 0) { // ! backlog = 3 (?); arbitrário? 
+    if (listen(server_fd, 3) < 0) {
         FAP_SERVER_PRINT("listen.");
         return RETURN_VALUE_ERROR;
     }
@@ -470,7 +497,7 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
 
     }
-    if(pthread_create(&t_main, NULL, WaitConnection, (void *) &server_fd)!=0){
+    if(pthread_create(&t_main, NULL, WaitConnection, (void *) &server_fd) != 0){
         FAP_SERVER_PRINT("Error starting main thread.");
         return RETURN_VALUE_ERROR;
     }
@@ -496,7 +523,7 @@ int terminateFapManagementProtocol()
     for(int i = 0; i < (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS); i++){
         if(threads[i].status == 1){
             shutdown(threads[i].socket, SHUT_RDWR);
-             if(pthread_join(threads[i].tid, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK)){
+             if(pthread_join(threads[i].tid, &retval) != 0 || ((intptr_t) retval != RETURN_VALUE_OK)){
                 FAP_SERVER_PRINT("Error exiting thread #%d: %s", i, strerror(errno));
             }
             else
@@ -507,9 +534,9 @@ int terminateFapManagementProtocol()
     shutdown(server_fd, SHUT_RDWR);
     close(server_fd);
 
-    if(pthread_join(t_main, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK)) {
-       FAP_SERVER_PRINT("Error exiting server thread.");
-        return RETURN_VALUE_ERROR;
+    if(pthread_join(t_main, &retval) != 0 || ((intptr_t) retval != RETURN_VALUE_OK)) {
+		FAP_SERVER_PRINT("Error exiting server thread.");
+		return RETURN_VALUE_ERROR;
     }
 
     // KILL HEARTBEAT
@@ -576,7 +603,6 @@ int getFapGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates)
 
 int getAllUsersGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, int *n)
 {
-    // ! é melhor: ou usar mutex, ou guardar uma cópia de clients (para além de active_users) logo no início da função
     int aux = active_users;
 
     // making sure there's enough space to accomodate all users' coordinates

@@ -10,13 +10,12 @@ package FapManagementProtocolClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
-import java.util.concurrent.TimeUnit;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE;
 
@@ -70,9 +69,7 @@ public class FapManagementProtocol_Client
 	private ObjectMapper objectMapper;
 	private int userId;
 	private BufferedReader in;
-//	private OutputStreamWriter out;
 	private PrintWriter out;
-//	private ObjectOutputStream out;
 
 	// =========================================================
 	//           PUBLIC API
@@ -82,11 +79,21 @@ public class FapManagementProtocol_Client
 	 * Constructor.
 	 */
 	public FapManagementProtocol_Client() {
+		/* Create an unconnected socket */
 		this.socket = new Socket();
+
+		/* JSON Object Mapper that keeps socket alive and pretty prints JSON */
 		this.objectMapper = new ObjectMapper();
 		objectMapper.configure(AUTO_CLOSE_SOURCE, false);
+		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+
 		/* Replace with getUserIdExternal() if server address isn't local */
 		this.userId = getUserIdLocal();
+
+		if(this.userId < 0)
+			prettyPrint(null, "Ready");
+		else
+			prettyPrint(null, "User ID " + this.userId + ": Ready");
 	}
 
 
@@ -111,7 +118,6 @@ public class FapManagementProtocol_Client
 		data.put(PROTOCOL_PARAMETERS_USER_ID, this.userId);
 		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.USER_ASSOCIATION_REQUEST.getMsgTypeValue());
 
-//		ObjectMapper objectMapper = new ObjectMapper();
 		String msg;
 		try {
 			msg = this.objectMapper.writeValueAsString(data);
@@ -121,22 +127,24 @@ public class FapManagementProtocol_Client
 
 
 		/* Open socket for communication with server */
-//		Socket socket = new Socket();
-		if(!connectSocket(this.socket, USER_ASSOCIATION_TIMEOUT_SECONDS))
+		if(!connectSocket(this.socket, USER_ASSOCIATION_TIMEOUT_SECONDS)) {
+			prettyPrint("requestUserAssociation", "Couldn't establish a connection to the Server");
 			return RETURN_VALUE_ERROR;
+		}
+
+		prettyPrint("requestUserAssociation", "Socket ready");
 
 		/* Create output stream */
 		try {
-//			this.out = new OutputStreamWriter(this.socket.getOutputStream(), StandardCharsets.UTF_8);
 			this.out = new PrintWriter(this.socket.getOutputStream(), true);
-//			this.out = new ObjectOutputStream(this.socket.getOutputStream());
 		} catch (IOException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("requestUserAssociation", "Trying to associate...");
 
 		/* Send JSON message through socket */
-		if(!sendMsg(msg, this.socket))
+		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 
@@ -160,7 +168,6 @@ public class FapManagementProtocol_Client
 		try {
 			response = this.objectMapper.readValue(this.in, LinkedHashMap.class);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
@@ -172,6 +179,7 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("requestUserAssociation", "Associated");
 
 		/* If the function reached this point, everything must be OK */
 		return RETURN_VALUE_OK;
@@ -185,7 +193,6 @@ public class FapManagementProtocol_Client
 	 * 				(considering USER_DESASSOCIATION_TIMEOUT_SECONDS).
 	 */
 	public boolean requestUserDesassociation() {
-
 		if(this.userId < 0) {
 			if((this.userId = getUserIdLocal()) < 0)
 				return RETURN_VALUE_ERROR;
@@ -199,23 +206,17 @@ public class FapManagementProtocol_Client
 		data.put(PROTOCOL_PARAMETERS_USER_ID, this.userId);
 		data.put(PROTOCOL_PARAMETERS_MSG_TYPE, ProtocolMsgType.USER_DESASSOCIATION_REQUEST.getMsgTypeValue());
 
-//		ObjectMapper objectMapper = new ObjectMapper();
 		String msg;
 		try {
 			msg = this.objectMapper.writeValueAsString(data);
 		} catch (JsonProcessingException e) {
-			return RETURN_VALUE_ERROR;
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-
-		/* Open socket for communication with server */
-//		Socket socket = new Socket();
-//		if(!connectSocket(this.socket, USER_DESASSOCIATION_TIMEOUT_SECONDS))
-//			return RETURN_VALUE_ERROR;
-
+		prettyPrint("requestUserDesassociation", "Trying to disconnect...");
 
 		/* Send JSON message through socket */
-		if(!sendMsg(msg, this.socket))
+		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 
@@ -225,13 +226,6 @@ public class FapManagementProtocol_Client
 		} catch (SocketException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
-
-//		BufferedReader in;
-//		try {
-//			this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-//		} catch (IOException e) {
-//			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-//		}
 
 
 		/* Parse response and check its values */
@@ -247,6 +241,8 @@ public class FapManagementProtocol_Client
 		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_DESASSOCIATION_ACK.getMsgTypeValue()) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
+		prettyPrint("requestUserDesassociation", "Disconnected");
 
 		return closeSocket(this.socket, RETURN_VALUE_OK);
 	}
@@ -287,7 +283,6 @@ public class FapManagementProtocol_Client
 		data.put(PROTOCOL_PARAMETERS_GPS_COORDINATES, gpsCoordinatesData);
 
 
-//		ObjectMapper objectMapper = new ObjectMapper();
 		String msg;
 		try {
 			msg = this.objectMapper.writeValueAsString(data);
@@ -295,14 +290,10 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-
-		/* Open socket for communication with server */
-//		Socket socket = new Socket();
-//		if(!connectSocket(this.socket, GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS))
-//			return closeSocket(this.socket, RETURN_VALUE_ERROR);
+		prettyPrint("sendGpsCoordinatesToFap", "Sending coordinates update: \n" + msg);
 
 		/* Send JSON message through socket */
-		if(!sendMsg(msg, this.socket))
+		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 		/* Set the timeout value and read response from socket */
@@ -311,14 +302,6 @@ public class FapManagementProtocol_Client
 		} catch (SocketException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
-
-
-//		BufferedReader in;
-//		try {
-//			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//		} catch (IOException e) {
-//			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-//		}
 
 
 		/* Parse response and check its values */
@@ -344,6 +327,7 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("sendGpsCoordinatesToFap", "Coordinates acknowledgement received");
 
 		return RETURN_VALUE_OK;
 	}
@@ -368,11 +352,10 @@ public class FapManagementProtocol_Client
 		try {
 			ip = InetAddress.getLocalHost().toString();
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
 			return -1;
 		}
 
-		return Integer.parseInt(ip.substring(ip.lastIndexOf('.')+1, ip.length()));
+		return Integer.parseInt(ip.substring(ip.lastIndexOf('.') + 1, ip.length()));
 	}
 
 	/**
@@ -388,11 +371,9 @@ public class FapManagementProtocol_Client
 		try {
 			myExternalIP = new URL("http://checkip.amazonaws.com");
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			return -1;
 		}
 		try {
-			if(myExternalIP == null)
-				return -1;
 			BufferedReader in = new BufferedReader(new InputStreamReader(myExternalIP.openStream()));
 			ip = in.readLine();
 		} catch (IOException e) {
@@ -403,19 +384,14 @@ public class FapManagementProtocol_Client
 	}
 
 	/**
+	 * Sends a message over the output stream
+	 *
 	 * @param msg 		String message to send (pref JSON format)
-	 * @param socket 	Socket to write the message into
-	 * @return 			True/False in case of success/failure
 	 */
-	private boolean sendMsg(String msg, Socket socket) {
-
-//		try {
-//			OutputStreamWriter out = new OutputStreamWriter(this.socket.getOutputStream(), StandardCharsets.UTF_8);
-//			this.out.write(msg);
-//			this.out.flush();
-//		} catch (IOException e) {
-//			return false;
-//		}
+	private boolean sendMsg(String msg) {
+		if(this.out == null) {
+			return false;
+		}
 
 		this.out.println(msg);
 
@@ -449,10 +425,16 @@ public class FapManagementProtocol_Client
 				new InetSocketAddress(SERVER_IP_ADDRESS, SERVER_PORT_NUMBER),
 				timeout*1000);
 		} catch (IOException e) {
-			e.printStackTrace();
 			return false;
 		}
 
 		return true;
+	}
+
+	private void prettyPrint(String func, String status) {
+		if(func == null)
+			System.out.println(">> FapManagementProtocol_Client: " + status);
+		else
+			System.out.println(">> FapManagementProtocol_Client::" + func + "(): " + status);
 	}
 }

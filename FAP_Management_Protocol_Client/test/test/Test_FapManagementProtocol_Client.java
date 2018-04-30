@@ -68,6 +68,8 @@ public class Test_FapManagementProtocol_Client
 
 		// Run tests
 		nErrors += runTest_fapManagementProtocol();
+
+		System.out.println("\nTotal errors: " + nErrors + ".");
 	}
 
 	/**
@@ -118,7 +120,7 @@ public class Test_FapManagementProtocol_Client
 
 
 	// =========================================================
-	//           AUXILIAY FUNCTIONS
+	//           AUXILIARY FUNCTIONS
 	// =========================================================
 
 	/**
