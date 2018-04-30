@@ -125,9 +125,11 @@ double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2) {
 }
 
 int get_free_thread() {
-    for(int i = 0; i < MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS; i++) {
-        if(threads[i].status == 0)
-            return i;
+    for(int i = 0; i < (MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS); i++) {
+        if(threads[i].status == 0) {
+			fprintf(stderr, "\n\ti: %d\n\n", i); //DEBUG
+			return i;
+		}
     }
 
     return -1;
@@ -158,9 +160,9 @@ void *handler_alarm(void *id) {
         }
     }
     shutdown(threads[user_id].socket, SHUT_RDWR);
-    pthread_mutex_lock(&lock);
-    active_users--;
-    pthread_mutex_unlock(&lock);
+    // pthread_mutex_lock(&lock);
+    // active_users--;
+    // pthread_mutex_unlock(&lock);
     FAP_SERVER_PRINT("Exiting Alarm.");
     clients[user_id].x= clients[user_id].y=clients[user_id].z=0;
     strcpy(clients[user_id].timestamp, "");
@@ -350,6 +352,7 @@ void *handler(void *thread_id) {
         FAP_SERVER_PRINT("New Message: \n%s\n", json_serialize_to_string_pretty(root_value));
         root_object = json_value_get_object(root_value);
         response = json_object_get_number(root_object, "msgType");
+
         if(response == USER_ASSOCIATION_REQUEST) {
             threads[id].user_id = json_object_get_number(root_object, PROTOCOL_PARAMETERS_USER_ID);
             serialized_string = handle_association();
@@ -365,7 +368,7 @@ void *handler(void *thread_id) {
             FAP_SERVER_PRINT("Gps Coordinates Updated [User ID - %d]",threads[id].user_id);
             send(threads[id].socket, serialized_string, strlen(serialized_string),0);
         }
-        else if((response == USER_DESASSOCIATION_REQUEST) && (active_users>0)) {
+        else if((response == USER_DESASSOCIATION_REQUEST) && (active_users > 0)) {
             serialized_string = handle_desassociation();
             FAP_SERVER_PRINT("Active Users: %d", active_users - 1);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
@@ -393,13 +396,16 @@ void *handler(void *thread_id) {
 void *WaitConnection(void *socket) {
     int sk_main = *(int *) socket;
 
-    while(exit_flag == 0) {
-        int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
-        if(new < 0) {
+    while(exit_flag == FALSE) {
+		int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
+        if((new < 0) && exit_flag == FALSE) {
             FAP_SERVER_PRINT("Error accepting connection.");
             return (void *) RETURN_VALUE_ERROR;
         }
 
+		if(exit_flag == TRUE) {
+			break;
+		}
         int t = get_free_thread();
         if(t != -1) {
             threads[t].socket = new;
@@ -462,6 +468,7 @@ int initializeFapManagementProtocol()
     memset(clients, 0, sizeof(clients));
     memset(&threads, 0 , (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS)*sizeof(threads_clients)); 
     int opt = 1;
+	exit_flag = FALSE;
 
     if(initializeMavlink() != RETURN_VALUE_OK 
             || sendMavlinkMsg_gpsGlobalOrigin(&fapOriginRawCoordinates) != RETURN_VALUE_OK)
@@ -505,11 +512,10 @@ int initializeFapManagementProtocol()
     // Start heartbeat
     alive = TRUE;
 
-    if(pthread_create(&t_heartbeat, NULL, sendHeartbeat(), NULL) != 0) {
+    if(pthread_create(&t_heartbeat, NULL, sendHeartbeat, NULL) != 0) {
         FAP_SERVER_PRINT("Error starting heartbeat.");
         return RETURN_VALUE_ERROR;
     }
-
 
     return RETURN_VALUE_OK;
 }
@@ -550,6 +556,9 @@ int terminateFapManagementProtocol()
         FAP_SERVER_PRINT("Error stopping heartbeat.");
         return RETURN_VALUE_ERROR;
     }
+
+	if(terminateMavlink() != RETURN_VALUE_OK)
+		return RETURN_VALUE_ERROR;
 
     return RETURN_VALUE_OK;
 }
@@ -603,25 +612,18 @@ int getFapGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates)
 
 int getAllUsersGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, int *n)
 {
-    int aux = active_users;
-
-    // making sure there's enough space to accomodate all users' coordinates
-    gpsNedCoordinates = realloc(gpsNedCoordinates, aux*sizeof(GpsNedCoordinates));
     if(gpsNedCoordinates == NULL){
-        FAP_SERVER_PRINT("Gps Ned Coordinates: Invalid Coordinates Struct.");
+        FAP_SERVER_PRINT("Invalid coordinates pointer.");
         return RETURN_VALUE_ERROR;
     }
+	if(n == NULL) {
+		FAP_SERVER_PRINT("Invalid users number pointer.");
+	}
 
     (*n) = 0;
 
     for(int i = 0; i < MAX_ASSOCIATED_USERS; i++) { 
         if(strcmp(clients[i].timestamp, "") != 0) {
-            //check if user number increased since previous realloc
-            if((*n)+1 > aux) {
-                gpsNedCoordinates = realloc(gpsNedCoordinates, (++aux)*sizeof(GpsNedCoordinates));
-                if(gpsNedCoordinates == NULL)
-                    return RETURN_VALUE_ERROR;
-            }
             gpsNedCoordinates[(*n)] = clients[i];
             (*n)++;
         }
