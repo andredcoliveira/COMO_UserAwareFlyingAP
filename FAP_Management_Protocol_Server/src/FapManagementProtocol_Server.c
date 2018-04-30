@@ -612,7 +612,7 @@ int getFapGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates)
 
 int getAllUsersGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, int *n)
 {
-    if(gpsNedCoordinates == NULL){
+    if(gpsNedCoordinates == NULL) {
         FAP_SERVER_PRINT("Invalid coordinates pointer.");
         return RETURN_VALUE_ERROR;
     }

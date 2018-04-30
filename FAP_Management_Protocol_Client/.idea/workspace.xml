@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="FAP_Management_Protocol_Client:jar" />
+    </artifacts-to-build>
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="e44dded9-3b21-4403-98a1-d648d64e138e" name="Default" comment="Presentation version">
+    <list default="true" id="e44dded9-3b21-4403-98a1-d648d64e138e" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/Makefile.orig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.c" beforeDir="false" afterPath="$PROJECT_DIR$/../FAP_Management_Protocol_Server/src/FapManagementProtocol_Server.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -33,23 +36,12 @@
       <file leaf-file-name="FapManagementProtocol_Client.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4080">
-              <caret line="18" column="37" lean-forward="true" selection-start-line="18" selection-start-column="37" selection-end-line="18" selection-end-column="37" />
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Test_FapManagementProtocol_Client.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="411">
-              <caret line="115" lean-forward="true" selection-start-line="115" selection-end-line="115" />
+            <state relative-caret-position="-944">
+              <caret line="294" lean-forward="true" selection-start-line="294" selection-end-line="294" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
+                <element signature="e#12073#12714#0" />
               </folding>
             </state>
           </provider>
@@ -72,8 +64,8 @@
       <file leaf-file-name="ProtocolMsgType.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="22" column="40" selection-start-line="22" selection-start-column="40" selection-end-line="22" selection-end-column="40" />
+            <state relative-caret-position="211">
+              <caret line="19" column="29" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="29" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="e#935#936#0" expanded="true" />
@@ -181,10 +173,10 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.build" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -198,7 +190,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Multirun.Multi-clients_FAP_11">
+  <component name="RunManager" selected="Application.Test_FapManagementProtocol_Client">
     <configuration name="Test_FapManagementProtocol_Client" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="test.Test_FapManagementProtocol_Client" />
       <module name="FAP_Management_Protocol_Client" />
@@ -365,7 +357,7 @@
       <workItem from="1525026691679" duration="18020000" />
       <workItem from="1525046683131" duration="8892000" />
       <workItem from="1525055890739" duration="8348000" />
-      <workItem from="1525075457153" duration="4457000" />
+      <workItem from="1525075457153" duration="7699000" />
     </task>
     <task id="LOCAL-00001" summary="Ready for testing.">
       <created>1525029824943</created>
@@ -395,11 +387,18 @@
       <option name="project" value="LOCAL" />
       <updated>1525064293430</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Presentation version">
+      <created>1525080005444</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1525080005444</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="43275000" />
+    <option name="totallyTimeSpent" value="46517000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -460,7 +459,13 @@
     <MESSAGE value="Used constructor and class parameters." />
     <MESSAGE value="Finished project." />
     <MESSAGE value="Delivery version." />
-    <option name="LAST_COMMIT_MESSAGE" value="Delivery version." />
+    <MESSAGE value="Presentation version" />
+    <option name="LAST_COMMIT_MESSAGE" value="Presentation version" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="2" />
+    </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -473,6 +478,8 @@
           <caret line="220" selection-start-line="220" selection-end-line="220" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#12073#12714#0" />
           </folding>
         </state>
       </provider>
@@ -518,6 +525,8 @@
           <caret line="155" selection-start-line="155" selection-end-line="155" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#12073#12714#0" />
           </folding>
         </state>
       </provider>
@@ -563,6 +572,8 @@
           <caret line="122" selection-start-line="122" selection-end-line="122" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#12073#12714#0" />
           </folding>
         </state>
       </provider>
@@ -608,6 +619,8 @@
           <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#12073#12714#0" />
           </folding>
         </state>
       </provider>
@@ -665,18 +678,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="22" column="40" selection-start-line="22" selection-start-column="40" selection-end-line="22" selection-end-column="40" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#935#936#0" expanded="true" />
-            <element signature="e#965#966#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/GpsCoordinates.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="398">
@@ -689,10 +690,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/ProtocolMsgType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="211">
+          <caret line="19" column="29" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="29" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#935#936#0" expanded="true" />
+            <element signature="e#965#966#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test/test/Test_FapManagementProtocol_Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="411">
-          <caret line="115" lean-forward="true" selection-start-line="115" selection-end-line="115" />
+        <state relative-caret-position="-61">
+          <caret line="117" column="61" lean-forward="true" selection-start-line="117" selection-start-column="61" selection-end-line="117" selection-end-column="61" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
@@ -702,10 +715,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/FapManagementProtocolClient/FapManagementProtocol_Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4080">
-          <caret line="18" column="37" lean-forward="true" selection-start-line="18" selection-start-column="37" selection-end-line="18" selection-end-column="37" />
+        <state relative-caret-position="-944">
+          <caret line="294" lean-forward="true" selection-start-line="294" selection-end-line="294" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#12073#12714#0" />
           </folding>
         </state>
       </provider>
@@ -716,10 +731,12 @@
       <state key="ArtifactsStructureConfigurable.UI">
         <settings>
           <artifact-editor />
+          <last-edited>FAP_Management_Protocol_Client:jar</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
                 <option value="0.2" />
+                <option value="0.5" />
               </list>
             </option>
           </splitter-proportions>
