@@ -11,14 +11,14 @@ package FapManagementProtocolClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
+
+import static com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE;
 
 
 /**
@@ -69,7 +69,10 @@ public class FapManagementProtocol_Client
 	private Socket socket;
 	private ObjectMapper objectMapper;
 	private int userId;
-
+	private BufferedReader in;
+//	private OutputStreamWriter out;
+	private PrintWriter out;
+//	private ObjectOutputStream out;
 
 	// =========================================================
 	//           PUBLIC API
@@ -81,6 +84,7 @@ public class FapManagementProtocol_Client
 	public FapManagementProtocol_Client() {
 		this.socket = new Socket();
 		this.objectMapper = new ObjectMapper();
+		objectMapper.configure(AUTO_CLOSE_SOURCE, false);
 		/* Replace with getUserIdExternal() if server address isn't local */
 		this.userId = getUserIdLocal();
 	}
@@ -121,10 +125,20 @@ public class FapManagementProtocol_Client
 		if(!connectSocket(this.socket, USER_ASSOCIATION_TIMEOUT_SECONDS))
 			return RETURN_VALUE_ERROR;
 
+		/* Create output stream */
+		try {
+//			this.out = new OutputStreamWriter(this.socket.getOutputStream(), StandardCharsets.UTF_8);
+			this.out = new PrintWriter(this.socket.getOutputStream(), true);
+//			this.out = new ObjectOutputStream(this.socket.getOutputStream());
+		} catch (IOException e) {
+			return closeSocket(this.socket, RETURN_VALUE_ERROR);
+		}
+
 
 		/* Send JSON message through socket */
 		if(!sendMsg(msg, this.socket))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
+
 
 		/* Set the timeout value and read response from socket */
 		try {
@@ -133,20 +147,23 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		BufferedReader in;
+
 		try {
-			 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		} catch (IOException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+
 		/* Parse response and check its values */
 		LinkedHashMap response;
 		try {
-			response = this.objectMapper.readValue(in, LinkedHashMap.class);
-		} catch (IOException e) {
+			response = this.objectMapper.readValue(this.in, LinkedHashMap.class);
+		} catch (Exception e) {
+			e.printStackTrace();
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
 
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
@@ -154,6 +171,7 @@ public class FapManagementProtocol_Client
 		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
 
 		/* If the function reached this point, everything must be OK */
 		return RETURN_VALUE_OK;
@@ -208,18 +226,18 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		BufferedReader in;
-		try {
-			in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-		} catch (IOException e) {
-			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-		}
+//		BufferedReader in;
+//		try {
+//			this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+//		} catch (IOException e) {
+//			return closeSocket(this.socket, RETURN_VALUE_ERROR);
+//		}
 
 
 		/* Parse response and check its values */
 		LinkedHashMap response;
 		try {
-			response = this.objectMapper.readValue(in, LinkedHashMap.class);
+			response = this.objectMapper.readValue(this.in, LinkedHashMap.class);
 		} catch (IOException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
@@ -251,7 +269,6 @@ public class FapManagementProtocol_Client
 		if(this.objectMapper == null)
 			this.objectMapper = new ObjectMapper();
 
-		System.out.println("Aqui 1"); //DEBUG
 
 		/* Create JSON formatted String with data */
 		LinkedHashMap<Object, Object> data = new LinkedHashMap<>();
@@ -269,7 +286,6 @@ public class FapManagementProtocol_Client
 
 		data.put(PROTOCOL_PARAMETERS_GPS_COORDINATES, gpsCoordinatesData);
 
-		System.out.println("Aqui 2"); //DEBUG
 
 //		ObjectMapper objectMapper = new ObjectMapper();
 		String msg;
@@ -280,19 +296,14 @@ public class FapManagementProtocol_Client
 		}
 
 
-		System.out.println("Aqui 3"); //DEBUG
-
 		/* Open socket for communication with server */
 //		Socket socket = new Socket();
 //		if(!connectSocket(this.socket, GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS))
-//			return RETURN_VALUE_ERROR;
+//			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 		/* Send JSON message through socket */
 		if(!sendMsg(msg, this.socket))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-
-
-		System.out.println("Aqui 4"); //DEBUG
 
 		/* Set the timeout value and read response from socket */
 		try {
@@ -301,26 +312,23 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		System.out.println("Aqui 5"); //DEBUG
 
-		BufferedReader in;
-		try {
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		} catch (IOException e) {
-			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-		}
+//		BufferedReader in;
+//		try {
+//			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//		} catch (IOException e) {
+//			return closeSocket(this.socket, RETURN_VALUE_ERROR);
+//		}
 
-		System.out.println("Aqui 6"); //DEBUG
 
 		/* Parse response and check its values */
 		LinkedHashMap response = null;
 		try {
-			response = this.objectMapper.readValue(in, LinkedHashMap.class);
+			response = this.objectMapper.readValue(this.in, LinkedHashMap.class);
 		} catch (IOException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		System.out.println("Aqui 7"); //DEBUG
 
 		if(response == null)
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
@@ -329,7 +337,6 @@ public class FapManagementProtocol_Client
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 		String responseTimestamp = response.get(PROTOCOL_PARAMETERS_GPS_TIMESTAMP).toString();
 
-		System.out.println("Aqui 8"); //DEBUG
 
 		if(responseId != this.userId
 				|| responseMsgType != ProtocolMsgType.GPS_COORDINATES_ACK.getMsgTypeValue()
@@ -337,7 +344,6 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		System.out.println("Aqui 9"); //DEBUG
 
 		return RETURN_VALUE_OK;
 	}
@@ -403,14 +409,15 @@ public class FapManagementProtocol_Client
 	 */
 	private boolean sendMsg(String msg, Socket socket) {
 
-		try {
-			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
-			out.write(msg);
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace(); //DEBUG
-			return false;
-		}
+//		try {
+//			OutputStreamWriter out = new OutputStreamWriter(this.socket.getOutputStream(), StandardCharsets.UTF_8);
+//			this.out.write(msg);
+//			this.out.flush();
+//		} catch (IOException e) {
+//			return false;
+//		}
+
+		this.out.println(msg);
 
 		return true;
 	}
@@ -419,7 +426,6 @@ public class FapManagementProtocol_Client
 	 * @param socket 	Socket to be closed
 	 */
 	private boolean closeSocket(Socket socket, boolean retval) {
-		System.out.println("closeSocket()"); //DEBUG
 		if(socket != null && socket.isConnected()) {
 			try {
 				socket.close();
@@ -443,6 +449,7 @@ public class FapManagementProtocol_Client
 				new InetSocketAddress(SERVER_IP_ADDRESS, SERVER_PORT_NUMBER),
 				timeout*1000);
 		} catch (IOException e) {
+			e.printStackTrace();
 			return false;
 		}
 
