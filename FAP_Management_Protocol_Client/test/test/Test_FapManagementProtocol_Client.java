@@ -69,7 +69,11 @@ public class Test_FapManagementProtocol_Client
 		// Run tests
 		nErrors += runTest_fapManagementProtocol();
 
-		System.out.println("\nTotal errors: " + nErrors + ".");
+		if(nErrors == 0) {
+			System.out.println("\n# TEST SUMMARY: Tests passed!");
+		} else {
+			System.out.println("\n# TEST SUMMARY: " + nErrors + " errors.");
+		}
 	}
 
 	/**
@@ -109,7 +113,6 @@ public class Test_FapManagementProtocol_Client
 			nErrors += assertCondition(fmp.sendGpsCoordinatesToFap(gpsCoordinates) == FapManagementProtocol_Client.RETURN_VALUE_OK,
 				"Sending GPS Coordinates");
 		}
-
 
 		// Terminate the FAP Management Protocol
 		nErrors += assertCondition(fmp.requestUserDesassociation() == FapManagementProtocol_Client.RETURN_VALUE_OK,

@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.*;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE;
 
@@ -155,6 +156,11 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		try {
+			TimeUnit.NANOSECONDS.sleep(100);
+		} catch (InterruptedException e) {
+			closeSocket(this.socket, RETURN_VALUE_ERROR);
+		}
 
 		try {
 			 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -227,6 +233,11 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		try {
+			TimeUnit.NANOSECONDS.sleep(100);
+		} catch (InterruptedException e) {
+			closeSocket(this.socket, RETURN_VALUE_ERROR);
+		}
 
 		/* Parse response and check its values */
 		LinkedHashMap response;
@@ -296,6 +307,7 @@ public class FapManagementProtocol_Client
 		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
+
 		/* Set the timeout value and read response from socket */
 		try {
 			this.socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000);
@@ -303,6 +315,12 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+
+		try {
+			TimeUnit.NANOSECONDS.sleep(100);
+		} catch (InterruptedException e) {
+			closeSocket(this.socket, RETURN_VALUE_ERROR);
+		}
 
 		/* Parse response and check its values */
 		LinkedHashMap response = null;
