@@ -125,7 +125,7 @@ double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2) {
 }
 
 int get_free_thread() {
-    for(int i = 0; i < 11; i++) {
+    for(int i = 0; i < MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS; i++) {
         if(threads[i].status == 0)
             return i;
     }
@@ -143,7 +143,6 @@ void *handler_alarm(void *id) {
     while(threads[user_id].alarm_flag == 0) {
         if(exit_flag == 1)
             break;
-
         if(strcmp(clients[user_id].timestamp, "") == 0)
             continue;
         
@@ -154,15 +153,15 @@ void *handler_alarm(void *id) {
         past.tm_isdst = now_t.tm_isdst;
         past_time = mktime(&past);
         if(difftime(now, past_time) > GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS) {
-            fprintf(stderr, "Too much time without updating coordinates, exiting now \n");
+            FAP_SERVER_PRINT("Too much time without updating coordinates, exiting now.");
             threads[user_id].alarm_flag = TRUE;
         }
     }
-
     shutdown(threads[user_id].socket, SHUT_RDWR);
     pthread_mutex_lock(&lock);
     active_users--;
     pthread_mutex_unlock(&lock);
+    FAP_SERVER_PRINT("Exiting Alarm.");
     clients[user_id].x= clients[user_id].y=clients[user_id].z=0;
     strcpy(clients[user_id].timestamp, "");
     return NULL;
@@ -206,7 +205,7 @@ char *handle_Gps_Update(int thread_id, JSON_Value *root) {
     //Determine Fap Actual Position
     sendMavlinkMsg_localPositionNed(&fapActualPosition);
     if(calculate_distance(fapActualPosition, clients[thread_id])>MAX_ALLOWED_DISTANCE_FROM_FAP_METERS){
-        printf("Distance Higher than 300m\n");
+        FAP_SERVER_PRINT("Distance Higher than 300m.");
         return NULL;
     }
     //Create Response
@@ -288,7 +287,7 @@ char *handle_desassociation() {
 void *handler(void *thread_id) { 
     int id = *(int *) thread_id;
 
-    fprintf(stderr, "ID: %d\n", id);
+    FAP_SERVER_PRINT("Handler Created with ID: %d", id);
     threads[id].status = 1;
     ProtocolMsgType response;
     //set of socket descriptors
@@ -305,7 +304,7 @@ void *handler(void *thread_id) {
     pthread_t alarm;
     char buffer[MAX_BUFFER]; 
     char *serialized_string = NULL;
-
+    pthread_create(&alarm, NULL, handler_alarm, (void *) &id);
     while(threads[id].alarm_flag == 0) {
         memset(buffer, 0, strlen(buffer));
         FD_ZERO(&readfds);
@@ -314,51 +313,37 @@ void *handler(void *thread_id) {
         timeout.tv_sec = GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1.5; 
         timeout.tv_usec = 0; 
         if(select( max_sd + 1 , &readfds , NULL , NULL , &timeout)<=0){
-             if(active_users>0){
-                threads[id].alarm_flag=TRUE;
-                pthread_mutex_lock(&lock);
-                active_users--;
-                pthread_mutex_unlock(&lock);
-            }
-            fprintf(stderr, "Error when using Select \n");
+            threads[id].alarm_flag=1;
+            FAP_SERVER_PRINT("Error when using Select.");
             break;
         }
         if((recv(threads[id].socket, buffer, MAX_BUFFER, 0) <= 0)) {
-             if(active_users>0){
-                threads[id].alarm_flag=TRUE;
-                pthread_mutex_lock(&lock);
-                active_users--;
-                pthread_mutex_unlock(&lock);
-            }
-            fprintf(stderr, "Ending Connection \n");
+            threads[id].alarm_flag=TRUE;
+            FAP_SERVER_PRINT("Ending Connection.");
             break;
         }
-        printf("New Message: %s\n", buffer);
         root_value = json_parse_string(buffer);
+        FAP_SERVER_PRINT("New Message: %s\n",json_serialize_to_string_pretty(root_value));
         root_object = json_value_get_object(root_value);
         response = json_object_get_number(root_object, "msgType");
         if(response == USER_ASSOCIATION_REQUEST) {
             threads[id].user_id = json_object_get_number(root_object, PROTOCOL_PARAMETERS_USER_ID);
-            pthread_create(&alarm, NULL, handler_alarm, (void *) &id);
             serialized_string = handle_association();
-            fprintf(stderr, "Active Users: %d\n", active_users);
+            FAP_SERVER_PRINT("Active Users: %d", active_users);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
         }
         else if(response == GPS_COORDINATES_UPDATE) {    
             serialized_string = handle_Gps_Update(id, root_value);
-             if(serialized_string==NULL){
+            if(serialized_string==NULL){
                 threads[id].alarm_flag=TRUE;
                 break;
             }
-            printf("Gps Coordinates Updated\nUser_ID:%d\n", threads[id].user_id);
+            FAP_SERVER_PRINT("Gps Coordinates Updated\nUser_ID:%d",threads[id].user_id);
             send(threads[id].socket, serialized_string, strlen(serialized_string),0);
         }
-        else if((response == USER_DESASSOCIATION_REQUEST) && (active_users > 0)) {
+        else if((response == USER_DESASSOCIATION_REQUEST) && (active_users>0)) {
             serialized_string = handle_desassociation();
-            pthread_mutex_lock(&lock);
-            active_users--; // ! variável global numa operação não atómica -> usar mutex pcausa do 'if'
-            pthread_mutex_unlock(&lock);
-            fprintf(stderr, "Active Users: %d\n", active_users);
+            FAP_SERVER_PRINT("Active Users: %d", active_users);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
             threads[id].alarm_flag=TRUE;
             break;
@@ -366,14 +351,18 @@ void *handler(void *thread_id) {
     }
 
     pthread_join(alarm, NULL);
-    close(threads[id].socket);
     threads[id].alarm_flag = FALSE;
     threads[id].user_id = 0;
     threads[id].status = 0;
-    fprintf(stderr, "Socket closed\n");
+    if(active_users>0){
+        pthread_mutex_lock(&lock);
+        active_users--;
+        pthread_mutex_unlock(&lock);
+    }
+    FAP_SERVER_PRINT("Socket closed.");
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
-
+    close(threads[id].socket);
     return (void *) RETURN_VALUE_OK;
 }
 
@@ -383,7 +372,7 @@ void *WaitConnection(void *socket) {
     while(exit_flag == 0) { // ! acho que isto devia levar mutex;
         int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
         if(new < 0) {
-            perror("accept");
+            FAP_SERVER_PRINT("Error accept.");
             return (void *) RETURN_VALUE_ERROR; // ! exit() manda abaixo a main() que estiver a usar a API, em vez de lhe retornar um valor de erro (i.e., RETURN_VALUE_ERROR)
         }
 
@@ -392,7 +381,7 @@ void *WaitConnection(void *socket) {
             threads[t].socket = new;
             pthread_create(&threads[t].tid, NULL, handler, (void *) &t); 
         } else {
-            fprintf(stderr, "Reached user limit. Dropping incoming connection.\n");
+            FAP_SERVER_PRINT("Reached user limit. Dropping incoming connection.");
         }
     }
 
@@ -405,20 +394,20 @@ void *sendHeartbeat() {
 
     while(alive) {
         if(clock_gettime(CLOCK_MONOTONIC, &start) < 0) {
-            perror("Error clocking heartbeat.");
+           FAP_SERVER_PRINT("Error clocking heartbeat.");
             alive = FALSE;
             return (void *) RETURN_VALUE_ERROR;
         }
 
         // send Mavlink message - HEARTBEAT
         if(sendMavlinkMsg_heartbeat() != RETURN_VALUE_OK) {
-            fprintf(stderr, "Error sending Heartbeat message.");
+            FAP_SERVER_PRINT("Error sending Heartbeat message.");
             alive = FALSE;
             return (void *) RETURN_VALUE_ERROR;
         }
 
         if(clock_gettime(CLOCK_MONOTONIC, &stop) < 0) {
-            perror("Error clocking heartbeat.");
+            FAP_SERVER_PRINT("Error clocking heartbeat.");
             alive = FALSE;
             return (void *) RETURN_VALUE_ERROR;
         }
@@ -452,12 +441,12 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
+        FAP_SERVER_PRINT("socket failed.");
         return RETURN_VALUE_ERROR;
     }
 
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        perror("setsockopt");
+        FAP_SERVER_PRINT("setsockopt.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -466,23 +455,23 @@ int initializeFapManagementProtocol()
     address.sin_port = htons(SERVER_PORT_NUMBER);
 
     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-        perror("bind");
+        FAP_SERVER_PRINT("bind.");
         return RETURN_VALUE_ERROR;
     }
 
     if (listen(server_fd, 3) < 0) { // ! backlog = 3 (?); arbitrário? 
-        perror("listen");
+        FAP_SERVER_PRINT("listen.");
         return RETURN_VALUE_ERROR;
     }
 
     if (pthread_mutex_init(&lock, NULL) != 0)
     {
-        printf("Error starting lock\n");
+        FAP_SERVER_PRINT("Error starting lock.");
         return RETURN_VALUE_ERROR;
 
     }
     if(pthread_create(&t_main, NULL, WaitConnection, (void *) &server_fd)!=0){
-        perror("Error starting main thread.");
+        FAP_SERVER_PRINT("Error starting main thread.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -490,7 +479,7 @@ int initializeFapManagementProtocol()
     alive = TRUE;
 
     if(pthread_create(&t_heartbeat, NULL, sendHeartbeat(), NULL) != 0) {
-        perror("Error starting heartbeat.");
+        FAP_SERVER_PRINT("Error starting heartbeat.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -507,10 +496,11 @@ int terminateFapManagementProtocol()
     for(int i = 0; i < (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS); i++){
         if(threads[i].status == 1){
             shutdown(threads[i].socket, SHUT_RDWR);
-            if(pthread_join(threads[i].tid, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK))
-                fprintf(stderr, "Error exiting thread #%d: %s\n", i, strerror(errno));
+             if(pthread_join(threads[i].tid, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK)){
+                FAP_SERVER_PRINT("Error exiting thread #%d: %s", i, strerror(errno));
+            }
             else
-                fprintf(stderr, "Ending thread's id: %d\n", i);
+                FAP_SERVER_PRINT("Ending thread's id: %d", i);
         }
     }
 
@@ -518,19 +508,19 @@ int terminateFapManagementProtocol()
     close(server_fd);
 
     if(pthread_join(t_main, &retval) != 0|| ((intptr_t) retval != RETURN_VALUE_OK)) {
-        perror("Error exiting server thread.");
+       FAP_SERVER_PRINT("Error exiting server thread.");
         return RETURN_VALUE_ERROR;
     }
 
     // KILL HEARTBEAT
     
     if(pthread_mutex_destroy(&lock)!=0){
-        perror("Error destroying lock\n");
+        FAP_SERVER_PRINT("Error destroying lock.");
         return RETURN_VALUE_ERROR;
     }
     alive = FALSE;
     if((pthread_join(t_heartbeat, &retval) != 0) || ((intptr_t) retval != RETURN_VALUE_OK)) {
-        perror("Error stopping heartbeat.");
+        FAP_SERVER_PRINT("Error stopping heartbeat.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -542,18 +532,18 @@ int moveFapToGpsNedCoordinates(const GpsNedCoordinates *gpsNedCoordinates)
 {
     // check if pointer is valid
     if(gpsNedCoordinates == NULL) {
-        fprintf(stderr, "Can't move FAP to target NED coordinates: Invalid coordinates struct\n");
+        FAP_SERVER_PRINT("Can't move FAP to target NED coordinates: Invalid coordinates struct.");
         return RETURN_VALUE_ERROR;
     }
 
     // send Mavlink message - SET_POSITION_TARGET_LOCAL_NED
     if(sendMavlinkMsg_setPositionTargetLocalNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
-        fprintf(stderr, "Can't move FAP to target NED coordinates: Error sending Mavlink message\n");
+        FAP_SERVER_PRINT("Can't move FAP to target NED coordinates: Error sending Mavlink message.");
         return RETURN_VALUE_ERROR;
     }
 
     // print status message
-    fprintf(stderr, "Moving FAP to NED coordinates: ");
+    FAP_SERVER_PRINT("Moving FAP to NED coordinates: ");
     PRINT_GPS_NED_COORDINATES((*gpsNedCoordinates));
 
     return RETURN_VALUE_OK;
@@ -572,12 +562,12 @@ int getFapGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates)
         
     // send Mavlink message - LOCAL_POSITION_NED
     if(sendMavlinkMsg_localPositionNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
-        fprintf(stderr, "Can't obtain FAP NED coordinates: Error sending Mavlink message\n");
+        FAP_SERVER_PRINT("Can't obtain FAP NED coordinates: Error sending Mavlink message.");
         return RETURN_VALUE_ERROR;
     }
 
     // print status message
-    fprintf(stderr, "FAP is at NED coordinates: ");
+    FAP_SERVER_PRINT("FAP is at NED coordinates: ");
     PRINT_GPS_NED_COORDINATES((*gpsNedCoordinates));
 
     return RETURN_VALUE_OK;
@@ -591,8 +581,10 @@ int getAllUsersGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, int *n)
 
     // making sure there's enough space to accomodate all users' coordinates
     gpsNedCoordinates = realloc(gpsNedCoordinates, aux*sizeof(GpsNedCoordinates));
-    if(gpsNedCoordinates == NULL)
+    if(gpsNedCoordinates == NULL){
+        FAP_SERVER_PRINT("Gps Ned Coordinates: Invalid Coordinates Struct.");
         return RETURN_VALUE_ERROR;
+    }
 
     (*n) = 0;
 
