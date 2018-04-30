@@ -291,6 +291,10 @@ void *handler(void *thread_id) {
     fprintf(stderr, "ID: %d\n", id);
     threads[id].status = 1;
     ProtocolMsgType response;
+    //set of socket descriptors
+    fd_set readfds;
+    int max_sd;
+    struct timeval timeout;
 
     // JSON inicialization 
     JSON_Value *root_value;
@@ -304,6 +308,21 @@ void *handler(void *thread_id) {
 
     while(threads[id].alarm_flag == 0) {
         memset(buffer, 0, strlen(buffer));
+        FD_ZERO(&readfds);
+        FD_SET(threads[id].socket, &readfds);
+        max_sd = threads[id].socket;
+        timeout.tv_sec = GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1.5; 
+        timeout.tv_usec = 0; 
+        if(select( max_sd + 1 , &readfds , NULL , NULL , &timeout)<=0){
+             if(active_users>0){
+                threads[id].alarm_flag=TRUE;
+                pthread_mutex_lock(&lock);
+                active_users--;
+                pthread_mutex_unlock(&lock);
+            }
+            fprintf(stderr, "Error when using Select \n");
+            break;
+        }
         if((recv(threads[id].socket, buffer, MAX_BUFFER, 0) <= 0)) {
              if(active_users>0){
                 threads[id].alarm_flag=TRUE;
@@ -341,6 +360,7 @@ void *handler(void *thread_id) {
             pthread_mutex_unlock(&lock);
             fprintf(stderr, "Active Users: %d\n", active_users);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
+            threads[id].alarm_flag=TRUE;
             break;
         }
     }
