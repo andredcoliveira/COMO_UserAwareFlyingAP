@@ -6,6 +6,15 @@
 *                             FEUP | MIEEC / MIEIC
 *******************************************************************************/
 
+
+package FapManagementProtocolClient;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+
+/**
+>>>>>>>
 package FapManagementProtocolClient;
 
 
@@ -73,6 +82,32 @@ public class GpsCoordinates
 		final GpsCoordinates other = (GpsCoordinates) objectToCompare;
 
 		return ((this.latitude == other.latitude) &&
+
+				(this.timestamp.equals(other.timestamp)));
+	}
+
+	/**
+	 * Override of the hashCode method.
+	 * 
+	 * @return		Hash code of the object.
+	 */
+	@Override
+	public int hashCode()
+	{
+		int hash = 3;
+		
+		hash = 23 * hash + Float.floatToIntBits(this.latitude);
+		hash = 23 * hash + Float.floatToIntBits(this.longitude);
+		hash = 23 * hash + Float.floatToIntBits(this.altitude);
+		hash = 23 * hash + Objects.hashCode(this.timestamp);
+		
+		return hash;
+	}
+
+
+	/**
+	 * Get the String representation of the GPS coordinates.
+>>>>>>>
 				(this.longitude == other.longitude) &&
 				(this.altitude == other.altitude) &&
 				(this.timestamp.equals(other.timestamp)));
@@ -139,7 +174,10 @@ public class GpsCoordinates
 	}
 
 
+
 	/**
+	 * Set latitude (in degrees).
+=======
 	 * Set latitude (in degrees).
 	 *
 	 * @param latitude		Latitude (in degrees).
@@ -155,6 +193,8 @@ public class GpsCoordinates
 
 	/**
 	 * Set longitude (in degrees).
+=======
+	 * Set longitude (in degrees).
 	 *
 	 * @param longitude		Longitude (in degrees).
 	 * @throws				IllegalArgumentException if the longitude is invalid.
@@ -166,6 +206,7 @@ public class GpsCoordinates
 
 		this.longitude = longitude;
 	}
+
 
 	/**
 	 * Set altitude (in meters).

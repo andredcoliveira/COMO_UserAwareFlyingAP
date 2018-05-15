@@ -9,12 +9,10 @@
 package test;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import FapManagementProtocolClient.*;
+import java.time.ZoneId;
 
 
 /**
@@ -27,15 +25,11 @@ public class Test_FapManagementProtocol_Client
 	// =========================================================
 
 	// Limits of the users GPS coordinates
-//	private static final float USERS_LATITUDE_MIN =		-8.601089;
-//	private static final float USERS_LATITUDE_MAX =		-8.594566;
-	private static final float USERS_LONGITUDE_MIN =	-8.601089f;
-	private static final float USERS_LONGITUDE_MAX =	-8.594566f;
+	private static final float USERS_LATITUDE_MIN	= 41.175590f;
+	private static final float USERS_LATITUDE_MAX	= 41.180524f;
 
-//	private static final float USERS_LONGITUDE_MIN =	41.175590;
-//	private static final float USERS_LONGITUDE_MAX =	41.180524;
-	private static final float USERS_LATITUDE_MIN =		41.175590f;
-	private static final float USERS_LATITUDE_MAX =		41.180524f;
+	private static final float USERS_LONGITUDE_MIN	= -8.601089f;
+	private static final float USERS_LONGITUDE_MAX	= -8.594566f;
 
 
 	// =========================================================
@@ -68,13 +62,14 @@ public class Test_FapManagementProtocol_Client
 
 		// Run tests
 		nErrors += runTest_fapManagementProtocol();
-
 		if(nErrors == 0) {
 			System.out.println("\n# TEST SUMMARY: Tests passed!");
 		} else {
 			System.out.println("\n# TEST SUMMARY: " + nErrors + " errors.");
 		}
-	}
+
+
+}
 
 	/**
 	 * Test - FAP Management Protocol.
@@ -105,14 +100,13 @@ public class Test_FapManagementProtocol_Client
 			float latitude = USERS_LATITUDE_MIN + random.nextFloat() * (USERS_LATITUDE_MAX - USERS_LATITUDE_MIN);
 			float longitude = USERS_LONGITUDE_MIN + random.nextFloat() * (USERS_LONGITUDE_MAX - USERS_LONGITUDE_MIN);
 
-//			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, new LocalDateTime());
-			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, LocalDateTime.now(ZoneOffset.UTC));
-
+			GpsCoordinates gpsCoordinates = new GpsCoordinates(latitude, longitude, 0, LocalDateTime.now(ZoneId.of("Z")));
 
 			// Send GPS coordinates
 			nErrors += assertCondition(fmp.sendGpsCoordinatesToFap(gpsCoordinates) == FapManagementProtocol_Client.RETURN_VALUE_OK,
 				"Sending GPS Coordinates");
 		}
+
 
 		// Terminate the FAP Management Protocol
 		nErrors += assertCondition(fmp.requestUserDesassociation() == FapManagementProtocol_Client.RETURN_VALUE_OK,
@@ -123,7 +117,7 @@ public class Test_FapManagementProtocol_Client
 
 
 	// =========================================================
-	//           AUXILIARY FUNCTIONS
+	//           AUXILIAY FUNCTIONS
 	// =========================================================
 
 	/**
