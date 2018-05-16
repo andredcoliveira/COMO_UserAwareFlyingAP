@@ -148,6 +148,8 @@ public class FapManagementProtocol_Client
 		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
+		prettyPrint("requestUserAssociation", "aqui 1: \n" + msg); // DEBUG
+
 
 		/* Set the timeout value and read response from socket */
 		try {
@@ -156,17 +158,23 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("requestUserAssociation", "aqui 2"); // DEBUG
+
 		try {
 			TimeUnit.NANOSECONDS.sleep(100);
 		} catch (InterruptedException e) {
 			closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("requestUserAssociation", "aqui 3"); // DEBUG
+
 		try {
 			 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		} catch (IOException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
+		prettyPrint("requestUserAssociation", "aqui 4"); // DEBUG
 
 
 		/* Parse response and check its values */
@@ -177,9 +185,13 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("requestUserAssociation", "aqui 5"); // DEBUG
+
 
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
+
+		prettyPrint("requestUserAssociation", "aqui 6: \n" + "responseId = " + responseId + "\n responseMsgType = " + responseMsgType); // DEBUG
 
 		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);

@@ -7,19 +7,16 @@
 ###############################################################################
 
 CC		= gcc
-CFLAGS	= -Wall -pthread -g -D_GNU_SOURCE #-Wextra
+CFLAGS	= -Wall #-Wextra
 
 BIN		= bin
 SRC		= src
 LIB		= lib
-
 TEST	= test
 
 MATH_LIBRARY	= m
 PTHREAD_LIBRARY	= pthread
 TEST_EXECUTABLE	= Test_FapManagementProtocol_Server
-
-
 
 
 .PHONY: all
@@ -33,12 +30,6 @@ run_test: all
 
 $(BIN)/$(TEST_EXECUTABLE): $(TEST)/* $(SRC)/* $(LIB)/*
 	$(CC) $(CFLAGS) -I$(SRC) -I$(LIB) $(TEST)/*.c $(SRC)/*.c $(LIB)/*/*.c -l$(MATH_LIBRARY) -l$(PTHREAD_LIBRARY) -o $@
-
-
-.PHONY: clean
-
-$(BIN)/$(TEST_EXECUTABLE): $(TEST)/* $(SRC)/* $(LIB)/*
-	$(CC) $(CFLAGS) -I$(SRC) -I$(LIB) $(TEST)/*.c $(SRC)/*.c $(LIB)/*/*.c -l$(MATH_LIBRARY) -o $@
 
 
 .PHONY: clean

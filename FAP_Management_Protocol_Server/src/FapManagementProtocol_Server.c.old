@@ -93,6 +93,11 @@ typedef enum _ProtocolMsgType
 static GpsRawCoordinates fapOriginRawCoordinates = {0};
 
 
+// ----- FAP MANAGEMENT PROTOCOL - SERVER ADDRESS ----- //
+#define SERVER_IP_ADDRESS		"127.0.0.1"
+#define SERVER_PORT_NUMBER		40123
+
+
 // ----- FAP MANAGEMENT PROTOCOL - GLOBAL VARIABLES ----- //
 
 GpsNedCoordinates clients[MAX_ASSOCIATED_USERS]; 

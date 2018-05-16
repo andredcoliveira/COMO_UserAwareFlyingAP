@@ -62,14 +62,7 @@ public class Test_FapManagementProtocol_Client
 
 		// Run tests
 		nErrors += runTest_fapManagementProtocol();
-		if(nErrors == 0) {
-			System.out.println("\n# TEST SUMMARY: Tests passed!");
-		} else {
-			System.out.println("\n# TEST SUMMARY: " + nErrors + " errors.");
-		}
-
-
-}
+	}
 
 	/**
 	 * Test - FAP Management Protocol.
@@ -117,7 +110,7 @@ public class Test_FapManagementProtocol_Client
 
 
 	// =========================================================
-	//           AUXILIAY FUNCTIONS
+	//           AUXILIARY FUNCTIONS
 	// =========================================================
 
 	/**
