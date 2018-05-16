@@ -6,7 +6,7 @@
 *                             FEUP | MIEEC / MIEIC
 *******************************************************************************/
 
-
+#define _GNU_SOURCE
 #include <unistd.h>
 
 
@@ -22,8 +22,8 @@
 
 // JSON parser
 // [https://github.com/udp/json-parser and https://github.com/udp/json-builder]
-#include "json/parson.h"
 //#include "json/json-builder.h"
+#include "json/parson.h"
 
 // C headers
 // (...)
@@ -209,11 +209,12 @@ char *handle_Gps_Update(int thread_id, JSON_Value *root) {
     response = GPS_COORDINATES_ACK; 
     root = json_value_init_object();
     object = json_value_get_object(root);
+    int id=threads[thread_id].user_id;
 
     json_object_set_number(
         object, 
         PROTOCOL_PARAMETERS_USER_ID, 
-        atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
+        id
     ); 
     json_object_set_number(object, PROTOCOL_PARAMETERS_MSG_TYPE, response);
     strcpyTimestampIso8601(Time, time(NULL));
@@ -224,7 +225,7 @@ char *handle_Gps_Update(int thread_id, JSON_Value *root) {
     return string;
 }
 
-char *handle_association() {
+char *handle_association(int id) {
     char *string = NULL;
     ProtocolMsgType response;
 
@@ -244,7 +245,7 @@ char *handle_association() {
     json_object_set_number(
         root_object, 
         PROTOCOL_PARAMETERS_USER_ID, 
-        atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
+        id
     ); 
     json_object_set_number(
         root_object, 
@@ -257,7 +258,7 @@ char *handle_association() {
     return string;
 }
 
-char *handle_desassociation() {
+char *handle_desassociation(int id) {
     char *string = NULL;
     ProtocolMsgType response;
 
@@ -271,8 +272,8 @@ char *handle_desassociation() {
     json_object_set_number(
         root_object, 
         PROTOCOL_PARAMETERS_USER_ID, 
-        atoi(strrchr(SERVER_IP_ADDRESS, '.') + 1)
-    ); 
+        id
+        ); 
     json_object_set_number(root_object, PROTOCOL_PARAMETERS_MSG_TYPE, response);
 
     string = json_serialize_to_string(root_value);
@@ -310,6 +311,7 @@ void *handler(void *thread_id) {
 	}
 
     while(threads[id].alarm_flag == 0) {
+
 		if(bad >= 1) {
 			// timed out
 			threads[id].alarm_flag = TRUE;
@@ -350,7 +352,7 @@ void *handler(void *thread_id) {
 
         if(response == USER_ASSOCIATION_REQUEST) {
             threads[id].user_id = json_object_get_number(root_object, PROTOCOL_PARAMETERS_USER_ID);
-            serialized_string = handle_association();
+            serialized_string = handle_association(threads[id].user_id);
             FAP_SERVER_PRINT("Active Users: %d", active_users);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
         }
@@ -364,7 +366,7 @@ void *handler(void *thread_id) {
             send(threads[id].socket, serialized_string, strlen(serialized_string),0);
         }
         else if((response == USER_DESASSOCIATION_REQUEST) && (active_users > 0)) {
-            serialized_string = handle_desassociation();
+            serialized_string = handle_desassociation(threads[id].user_id);
             FAP_SERVER_PRINT("Active Users: %d", active_users - 1);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
             threads[id].alarm_flag = TRUE;

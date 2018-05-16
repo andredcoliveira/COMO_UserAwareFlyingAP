@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "gpscoordinates.h": "c",
+        "fapmanagementprotocol_server.h": "c"
+    }
+}

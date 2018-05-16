@@ -12,7 +12,7 @@
 // These files should not be modified.
 // =========================================================
 
-
+#define _GNU_SOURCE
 // Module headers
 #include "GpsCoordinates.h"
 

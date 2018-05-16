@@ -89,7 +89,7 @@ public class FapManagementProtocol_Client
 		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
 		/* Replace with getUserIdExternal() if server address isn't local */
-		this.userId = getUserIdLocal();
+		this.userId = 2;//getUserIdLocal();
 
 		if(this.userId < 0)
 			prettyPrint(null, "Ready");
@@ -134,7 +134,6 @@ public class FapManagementProtocol_Client
 		}
 
 		prettyPrint("requestUserAssociation", "Socket ready");
-
 		/* Create output stream */
 		try {
 			this.out = new PrintWriter(this.socket.getOutputStream(), true);
@@ -143,12 +142,10 @@ public class FapManagementProtocol_Client
 		}
 
 		prettyPrint("requestUserAssociation", "Trying to associate...");
-
 		/* Send JSON message through socket */
 		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
-		prettyPrint("requestUserAssociation", "aqui 1: \n" + msg); // DEBUG
 
 
 		/* Set the timeout value and read response from socket */
@@ -158,7 +155,6 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		prettyPrint("requestUserAssociation", "aqui 2"); // DEBUG
 
 		try {
 			TimeUnit.NANOSECONDS.sleep(100);
@@ -166,7 +162,6 @@ public class FapManagementProtocol_Client
 			closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		prettyPrint("requestUserAssociation", "aqui 3"); // DEBUG
 
 		try {
 			 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -174,7 +169,6 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		prettyPrint("requestUserAssociation", "aqui 4"); // DEBUG
 
 
 		/* Parse response and check its values */
@@ -185,19 +179,17 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		prettyPrint("requestUserAssociation", "aqui 5"); // DEBUG
 
 
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 
-		prettyPrint("requestUserAssociation", "aqui 6: \n" + "responseId = " + responseId + "\n responseMsgType = " + responseMsgType); // DEBUG
 
 		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
-
 		prettyPrint("requestUserAssociation", "Associated");
+
 
 		/* If the function reached this point, everything must be OK */
 		return RETURN_VALUE_OK;
