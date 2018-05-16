@@ -122,7 +122,6 @@ double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2) {
 int get_free_thread() {
     for(int i = 0; i < (MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS); i++) {
         if(threads[i].status == 0) {
-			fprintf(stderr, "\n\ti: %d\n\n", i); //DEBUG
 			return i;
 		}
     }
@@ -202,7 +201,7 @@ char *handle_Gps_Update(int thread_id, JSON_Value *root) {
     //Determine Fap Actual Position
     sendMavlinkMsg_localPositionNed(&fapActualPosition);
     if(calculate_distance(fapActualPosition, clients[thread_id])>MAX_ALLOWED_DISTANCE_FROM_FAP_METERS){
-        FAP_SERVER_PRINT("Distance longer than 300m.");
+        FAP_SERVER_PRINT_ERROR("Distance longer than 300m.");
         return NULL;
     }
     //Create Response
@@ -472,12 +471,12 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        FAP_SERVER_PRINT("socket failed.");
+        FAP_SERVER_PRINT_ERROR("socket failed.");
         return RETURN_VALUE_ERROR;
     }
 
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        FAP_SERVER_PRINT("setsockopt.");
+        FAP_SERVER_PRINT_ERROR("setsockopt.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -486,23 +485,23 @@ int initializeFapManagementProtocol()
     address.sin_port = htons(SERVER_PORT_NUMBER);
 
     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-        FAP_SERVER_PRINT("bind.");
+        FAP_SERVER_PRINT_ERROR("bind.");
         return RETURN_VALUE_ERROR;
     }
 
     if (listen(server_fd, 3) < 0) {
-        FAP_SERVER_PRINT("listen.");
+        FAP_SERVER_PRINT_ERROR("listen.");
         return RETURN_VALUE_ERROR;
     }
 
     if (pthread_mutex_init(&lock, NULL) != 0)
     {
-        FAP_SERVER_PRINT("Error starting lock.");
+        FAP_SERVER_PRINT_ERROR("Error starting lock.");
         return RETURN_VALUE_ERROR;
 
     }
     if(pthread_create(&t_main, NULL, WaitConnection, (void *) &server_fd) != 0){
-        FAP_SERVER_PRINT("Error starting main thread.");
+        FAP_SERVER_PRINT_ERROR("Error starting main thread.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -510,7 +509,7 @@ int initializeFapManagementProtocol()
     alive = TRUE;
 
     if(pthread_create(&t_heartbeat, NULL, sendHeartbeat, NULL) != 0) {
-        FAP_SERVER_PRINT("Error starting heartbeat.");
+        FAP_SERVER_PRINT_ERROR("Error starting heartbeat.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -538,19 +537,19 @@ int terminateFapManagementProtocol()
     close(server_fd);
 
     if(pthread_join(t_main, &retval) != 0 || ((intptr_t) retval != RETURN_VALUE_OK)) {
-		FAP_SERVER_PRINT("Error exiting server thread.");
+		FAP_SERVER_PRINT_ERROR("Error exiting server thread.");
 		return RETURN_VALUE_ERROR;
     }
 
     // KILL HEARTBEAT
     
     if(pthread_mutex_destroy(&lock)!=0){
-        FAP_SERVER_PRINT("Error destroying lock.");
+        FAP_SERVER_PRINT_ERROR("Error destroying lock.");
         return RETURN_VALUE_ERROR;
     }
     alive = FALSE;
     if((pthread_join(t_heartbeat, &retval) != 0) || ((intptr_t) retval != RETURN_VALUE_OK)) {
-        FAP_SERVER_PRINT("Error stopping heartbeat.");
+        FAP_SERVER_PRINT_ERROR("Error stopping heartbeat.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -565,13 +564,13 @@ int moveFapToGpsNedCoordinates(const GpsNedCoordinates *gpsNedCoordinates)
 {
     // check if pointer is valid
     if(gpsNedCoordinates == NULL) {
-        FAP_SERVER_PRINT("Can't move FAP to target NED coordinates: Invalid coordinates struct.");
+        FAP_SERVER_PRINT_ERROR("Can't move FAP to target NED coordinates: Invalid coordinates struct.");
         return RETURN_VALUE_ERROR;
     }
 
     // send Mavlink message - SET_POSITION_TARGET_LOCAL_NED
     if(sendMavlinkMsg_setPositionTargetLocalNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
-        FAP_SERVER_PRINT("Can't move FAP to target NED coordinates: Error sending Mavlink message.");
+        FAP_SERVER_PRINT_ERROR("Can't move FAP to target NED coordinates: Error sending Mavlink message.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -595,7 +594,7 @@ int getFapGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates)
         
     // send Mavlink message - LOCAL_POSITION_NED
     if(sendMavlinkMsg_localPositionNed(gpsNedCoordinates) != RETURN_VALUE_OK) {
-        FAP_SERVER_PRINT("Can't obtain FAP NED coordinates: Error sending Mavlink message.");
+        FAP_SERVER_PRINT_ERROR("Can't obtain FAP NED coordinates: Error sending Mavlink message.");
         return RETURN_VALUE_ERROR;
     }
 
@@ -610,11 +609,12 @@ int getFapGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates)
 int getAllUsersGpsNedCoordinates(GpsNedCoordinates *gpsNedCoordinates, int *n)
 {
     if(gpsNedCoordinates == NULL) {
-        FAP_SERVER_PRINT("Invalid coordinates pointer.");
+        FAP_SERVER_PRINT_ERROR("Invalid coordinates pointer.");
         return RETURN_VALUE_ERROR;
     }
 	if(n == NULL) {
-		FAP_SERVER_PRINT("Invalid users number pointer.");
+		FAP_SERVER_PRINT_ERROR("Invalid users number pointer.");
+        return RETURN_VALUE_ERROR;
 	}
 
     (*n) = 0;

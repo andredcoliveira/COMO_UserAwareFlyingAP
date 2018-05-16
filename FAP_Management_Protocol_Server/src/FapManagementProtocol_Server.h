@@ -16,16 +16,25 @@
 // =========================================================
 //           DEFINES
 
+#define RED		"\x1B[31m"
 #define YEL		"\x1B[33m"
 #define BLUE	"\x1B[34m"
 #define RESET	"\x1B[0m"
 
-#define FAP_SERVER_PRINT(...)                                            \
-	do                                                                   \
-	{                                                                    \
+#define FAP_SERVER_PRINT(...)                                             \
+	do                                                                    \
+	{                                                                     \
 		printf(BLUE ">> FapManagementProtocol_Server::%s(): ", __func__); \
 		printf(BLUE __VA_ARGS__);                                         \
-		printf(RESET "\n");                                              \
+		printf(RESET "\n");                                               \
+	} while (0);
+
+#define FAP_SERVER_PRINT_ERROR(...)                                       \
+	do                                                                    \
+	{                                                                     \
+		printf(RED ">> FapManagementProtocol_Server::%s(): ", __func__);  \
+		printf(RED __VA_ARGS__);                                          \
+		printf(RESET "\n");                                               \
 	} while (0);
 
 

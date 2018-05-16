@@ -89,7 +89,7 @@ public class FapManagementProtocol_Client
 		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
 		/* Replace with getUserIdExternal() if server address isn't local */
-		this.userId = 2;//getUserIdLocal();
+		this.userId = getUserIdLocal();
 
 		if(this.userId < 0)
 			prettyPrint(null, "Ready");
@@ -110,8 +110,11 @@ public class FapManagementProtocol_Client
 			if((this.userId = getUserIdLocal()) < 0)
 				return RETURN_VALUE_ERROR;
 		}
-		if(this.objectMapper == null)
+		if(this.objectMapper == null) {
 			this.objectMapper = new ObjectMapper();
+			objectMapper.configure(AUTO_CLOSE_SOURCE, false);
+			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+		}
 
 
 		/* Create JSON formatted String with data */
@@ -134,6 +137,8 @@ public class FapManagementProtocol_Client
 		}
 
 		prettyPrint("requestUserAssociation", "Socket ready");
+
+
 		/* Create output stream */
 		try {
 			this.out = new PrintWriter(this.socket.getOutputStream(), true);
@@ -142,10 +147,11 @@ public class FapManagementProtocol_Client
 		}
 
 		prettyPrint("requestUserAssociation", "Trying to associate...");
+
+
 		/* Send JSON message through socket */
 		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-
 
 
 		/* Set the timeout value and read response from socket */
@@ -170,7 +176,6 @@ public class FapManagementProtocol_Client
 		}
 
 
-
 		/* Parse response and check its values */
 		LinkedHashMap response;
 		try {
@@ -179,15 +184,13 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-
-
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
-
 
 		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
 		prettyPrint("requestUserAssociation", "Associated");
 
 
@@ -207,8 +210,11 @@ public class FapManagementProtocol_Client
 			if((this.userId = getUserIdLocal()) < 0)
 				return RETURN_VALUE_ERROR;
 		}
-		if(this.objectMapper == null)
+		if(this.objectMapper == null) {
 			this.objectMapper = new ObjectMapper();
+			objectMapper.configure(AUTO_CLOSE_SOURCE, false);
+			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+		}
 
 
 		/* Create JSON formatted String with data */
@@ -277,8 +283,11 @@ public class FapManagementProtocol_Client
 			if((this.userId = getUserIdLocal()) < 0)
 				return RETURN_VALUE_ERROR;
 		}
-		if(this.objectMapper == null)
+		if(this.objectMapper == null) {
 			this.objectMapper = new ObjectMapper();
+			objectMapper.configure(AUTO_CLOSE_SOURCE, false);
+			objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+		}
 
 
 		/* Create JSON formatted String with data */
