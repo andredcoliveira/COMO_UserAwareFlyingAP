@@ -6,7 +6,10 @@
 *                             FEUP | MIEEC / MIEIC
 *******************************************************************************/
 
+
 package FapManagementProtocolClient;
+
+
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,9 +24,6 @@ import java.util.concurrent.TimeUnit;
 import static com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE;
 
 
-/**
- * FAP Management Protocol (Client).
- */
 public class FapManagementProtocol_Client
 {
 	// =========================================================
