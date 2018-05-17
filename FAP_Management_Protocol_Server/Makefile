@@ -8,6 +8,7 @@
 
 CC		= gcc
 CFLAGS	= -Wall #-Wextra
+CFLAGS += -D_GNU_SOURCE
 
 BIN		= bin
 SRC		= src

@@ -6,7 +6,7 @@
 *                             FEUP | MIEEC / MIEIC
 *******************************************************************************/
 
-#define _GNU_SOURCE
+// #define _GNU_SOURCE
 #include <unistd.h>
 
 
@@ -103,6 +103,7 @@ int exit_flag = FALSE;
 int addrlen = sizeof(address);
 threads_clients threads[MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS]; 
 pthread_mutex_t lock;
+pthread_mutex_t lock2;
 pthread_t t_main;
 int active_users = 0;
 
@@ -121,9 +122,13 @@ double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2) {
 
 int get_free_thread() {
     for(int i = 0; i < (MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS); i++) {
+        pthread_mutex_lock(&lock2);
         if(threads[i].status == 0) {
+            threads[i].status = 1;
+            pthread_mutex_unlock(&lock2);
 			return i;
 		}
+        pthread_mutex_unlock(&lock2);
     }
 
     return -1;
@@ -285,7 +290,7 @@ void *handler(void *thread_id) {
     int id = *(int *) thread_id;
 
     FAP_SERVER_PRINT("Handler Created with ID: %d", id);
-    threads[id].status = 1;
+    // threads[id].status = 1;
     ProtocolMsgType response;
     //set of socket descriptors
     fd_set readfds;
@@ -376,16 +381,23 @@ void *handler(void *thread_id) {
     pthread_join(alarm, NULL);
     threads[id].alarm_flag = FALSE;
     threads[id].user_id = 0;
-    threads[id].status = 0;
+
     if(active_users > 0){
         pthread_mutex_lock(&lock);
         active_users--;
         pthread_mutex_unlock(&lock);
     }
-    FAP_SERVER_PRINT("Socket closed.");
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
+
+    pthread_mutex_lock(&lock2);
     close(threads[id].socket);
+
+    threads[id].status = 0;
+    pthread_mutex_unlock(&lock2);
+    
+    FAP_SERVER_PRINT("Socket closed.");
+
     return (void *) RETURN_VALUE_OK;
 }
 
@@ -403,14 +415,16 @@ void *WaitConnection(void *socket) {
 			break;
 		}
         int t = get_free_thread();
+        // threads[t].status = 1;
         if(t != -1) {
             threads[t].socket = new;
-            if(pthread_create(&threads[t].tid, NULL, handler, (void *) &t) != 0) {
+            if(pthread_create(&threads[t].tid, NULL, handler, (void *) &t) != 0) {    
+                pthread_mutex_unlock(&lock2);
 				FAP_SERVER_PRINT("Error starting a handler thread.");
 				return (void *) RETURN_VALUE_ERROR;
 			}
         } else {
-            FAP_SERVER_PRINT("Reached user limit. Dropping incoming connection.");
+            FAP_SERVER_PRINT_ERROR("Reached user limit. Dropping incoming connection.");
         }
     }
 
@@ -489,16 +503,19 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
     }
 
-    if (listen(server_fd, 3) < 0) {
+    if (listen(server_fd,MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS) < 0) {
         FAP_SERVER_PRINT_ERROR("listen.");
         return RETURN_VALUE_ERROR;
     }
 
-    if (pthread_mutex_init(&lock, NULL) != 0)
-    {
+    if (pthread_mutex_init(&lock, NULL) != 0) {
         FAP_SERVER_PRINT_ERROR("Error starting lock.");
         return RETURN_VALUE_ERROR;
 
+    }
+    if (pthread_mutex_init(&lock2, NULL) != 0) {
+        FAP_SERVER_PRINT_ERROR("Error starting lock.");
+        return RETURN_VALUE_ERROR;
     }
     if(pthread_create(&t_main, NULL, WaitConnection, (void *) &server_fd) != 0){
         FAP_SERVER_PRINT_ERROR("Error starting main thread.");
@@ -526,7 +543,7 @@ int terminateFapManagementProtocol()
         if(threads[i].status == 1){
             shutdown(threads[i].socket, SHUT_RDWR);
              if(pthread_join(threads[i].tid, &retval) != 0 || ((intptr_t) retval != RETURN_VALUE_OK)){
-                FAP_SERVER_PRINT("Error exiting thread #%d: %s", i, strerror(errno));
+                FAP_SERVER_PRINT_ERROR("Error exiting thread #%d: %s", i, strerror(errno));
             }
             else
                 FAP_SERVER_PRINT("Ending thread's id: %d", i);
@@ -543,7 +560,11 @@ int terminateFapManagementProtocol()
 
     // KILL HEARTBEAT
     
-    if(pthread_mutex_destroy(&lock)!=0){
+    if(pthread_mutex_destroy(&lock) != 0){
+        FAP_SERVER_PRINT_ERROR("Error destroying lock.");
+        return RETURN_VALUE_ERROR;
+    }
+    if(pthread_mutex_destroy(&lock2) != 0){
         FAP_SERVER_PRINT_ERROR("Error destroying lock.");
         return RETURN_VALUE_ERROR;
     }

@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.*;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE;
@@ -89,7 +90,9 @@ public class FapManagementProtocol_Client
 		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
 		/* Replace with getUserIdExternal() if server address isn't local */
-		this.userId = getUserIdLocal();
+//		this.userId = getUserIdLocal();
+		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // DEBUG
+
 
 		if(this.userId < 0)
 			prettyPrint(null, "Ready");
@@ -320,6 +323,8 @@ public class FapManagementProtocol_Client
 		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
+		prettyPrint("sendGpsCoordinatesToFap", "Aqui 1"); // DEBUG
+
 
 		/* Set the timeout value and read response from socket */
 		try {
@@ -328,12 +333,16 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("sendGpsCoordinatesToFap", "Aqui 2"); // DEBUG
+
 
 		try {
 			TimeUnit.NANOSECONDS.sleep(100);
 		} catch (InterruptedException e) {
 			closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
+		prettyPrint("sendGpsCoordinatesToFap", "Aqui 3"); // DEBUG
 
 		/* Parse response and check its values */
 		LinkedHashMap response = null;
@@ -343,20 +352,27 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
+		prettyPrint("sendGpsCoordinatesToFap", "Aqui 4"); // DEBUG
+
 
 		if(response == null)
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
+
+		prettyPrint("sendGpsCoordinatesToFap", "Aqui 5"); // DEBUG
 
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 		String responseTimestamp = response.get(PROTOCOL_PARAMETERS_GPS_TIMESTAMP).toString();
 
 
+		prettyPrint("sendGpsCoordinatesToFap", "Aqui 6"); // DEBUG
+
 		if(responseId != this.userId
 				|| responseMsgType != ProtocolMsgType.GPS_COORDINATES_ACK.getMsgTypeValue()
 				|| !responseTimestamp.equals(gpsCoordinates.getTimestamp().withNano(0).atZone(ZoneOffset.UTC).toString())) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
+
 
 		prettyPrint("sendGpsCoordinatesToFap", "Coordinates acknowledgement received");
 
