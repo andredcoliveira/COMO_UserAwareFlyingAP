@@ -48,7 +48,7 @@
 
 // Maximum simultaneously associated users
 #define MAX_ASSOCIATED_USERS		10
-#define MAX_REJECTED_USERS          (MAX_ASSOCIATED_USERS/2)
+#define SO_MAX_CONN					32
 
 
 // =========================================================

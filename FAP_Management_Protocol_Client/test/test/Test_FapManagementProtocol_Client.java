@@ -66,7 +66,9 @@ public class Test_FapManagementProtocol_Client
 		if(nErrors == 0) {
 			System.out.println("\n# TEST SUMMARY: Tests passed!");
 		} else {
-			System.out.println("\n# TEST SUMMARY: " + nErrors + " errors.");
+			System.out.print("\n# TEST SUMMARY: " + nErrors + " errors.");
+			if(nErrors == 2 || nErrors == 3)
+				System.out.println(" Check if sent coordinates are within limits.");
 		}
 	}
 

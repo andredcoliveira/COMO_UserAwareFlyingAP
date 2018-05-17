@@ -90,8 +90,8 @@ public class FapManagementProtocol_Client
 		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
 		/* Replace with getUserIdExternal() if server address isn't local */
-//		this.userId = getUserIdLocal();
-		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // For testing different IDs
+		this.userId = getUserIdLocal();
+//		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // For testing different IDs
 
 
 		if(this.userId < 0)
@@ -162,13 +162,6 @@ public class FapManagementProtocol_Client
 			this.socket.setSoTimeout(USER_ASSOCIATION_TIMEOUT_SECONDS*1000);
 		} catch (SocketException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-		}
-
-
-		try {
-			TimeUnit.NANOSECONDS.sleep(100);
-		} catch (InterruptedException e) {
-			closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
 
@@ -244,12 +237,6 @@ public class FapManagementProtocol_Client
 			this.socket.setSoTimeout(USER_DESASSOCIATION_TIMEOUT_SECONDS*1000);
 		} catch (SocketException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-		}
-
-		try {
-			TimeUnit.NANOSECONDS.sleep(100);
-		} catch (InterruptedException e) {
-			closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
 		/* Parse response and check its values */
@@ -331,13 +318,6 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-
-		try {
-			TimeUnit.NANOSECONDS.sleep(100);
-		} catch (InterruptedException e) {
-			closeSocket(this.socket, RETURN_VALUE_ERROR);
-		}
-
 		/* Parse response and check its values */
 		LinkedHashMap response = null;
 		try {
@@ -346,14 +326,12 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-
 		if(response == null)
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 		String responseTimestamp = response.get(PROTOCOL_PARAMETERS_GPS_TIMESTAMP).toString();
-
 
 		if(responseId != this.userId
 				|| responseMsgType != ProtocolMsgType.GPS_COORDINATES_ACK.getMsgTypeValue()

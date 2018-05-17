@@ -101,10 +101,8 @@ struct sockaddr_in address;
 int alarm_flag = FALSE;
 int exit_flag = FALSE;
 int addrlen = sizeof(address);
-// threads_clients threads[MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS];
 threads_clients threads[MAX_ASSOCIATED_USERS]; 
 pthread_mutex_t lock;
-pthread_mutex_t lock2;
 pthread_t t_main;
 int active_users = 0;
 
@@ -141,11 +139,11 @@ void *handler_alarm(void *id) {
         past.tm_isdst = now_t.tm_isdst;
         past_time = mktime(&past);
         if(difftime(now, past_time) > GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS) {
-            FAP_SERVER_PRINT_ERROR("Too much time without updating coordinates, exiting now.");
+            FAP_SERVER_PRINT_ERROR("Handler #%d: Too long without updating coordinates, exiting now.", user_id);
             threads[user_id].alarm_flag = TRUE;
         }
     }
-    shutdown(threads[user_id].socket, SHUT_RDWR);
+    // shutdown(threads[user_id].socket, SHUT_RDWR);
     FAP_SERVER_PRINT("Exiting Alarm.");
     clients[user_id].x= clients[user_id].y=clients[user_id].z=0;
     strcpy(clients[user_id].timestamp, "");
@@ -158,7 +156,8 @@ char *handle_gps_update(int thread_id, JSON_Value *root) {
     GpsRawCoordinates ClientRawCoordinates = {0};
     GpsNedCoordinates fapActualPosition    = {0};
     JSON_Object *object = json_value_get_object(root);
-    //Handle Request
+
+    // Handle Request
     double latitude = json_object_dotget_number(
         object, 
         PROTOCOL_PARAMETERS_GPS_COORDINATES "." PROTOCOL_PARAMETERS_GPS_COORDINATES_LAT
@@ -187,13 +186,15 @@ char *handle_gps_update(int thread_id, JSON_Value *root) {
         &ClientRawCoordinates, 
         &fapOriginRawCoordinates
     );
-    //Determine Fap Actual Position
+
+    // Determine FAP's Actual Position
     sendMavlinkMsg_localPositionNed(&fapActualPosition);
     if(calculate_distance(fapActualPosition, clients[thread_id])>MAX_ALLOWED_DISTANCE_FROM_FAP_METERS){
         FAP_SERVER_PRINT_ERROR("Handler #%d: Distance longer than 300m.", thread_id);
         return NULL;
     }
-    //Create Response
+
+    // Create Response
     response = GPS_COORDINATES_ACK; 
     root = json_value_init_object();
     object = json_value_get_object(root);
@@ -219,8 +220,8 @@ char *handle_association(int id) {
 
 
     pthread_mutex_lock(&lock);
-    if(active_users < MAX_ASSOCIATED_USERS) {
-        active_users++;
+    if(active_users - 1 < MAX_ASSOCIATED_USERS) {
+        // active_users++;
         response = USER_ASSOCIATION_ACCEPTED;
     } else
         response = USER_ASSOCIATION_REJECTED;
@@ -274,10 +275,10 @@ char *handle_desassociation(int id) {
 void *handler(void *thread_id) { 
     int id = *((int *) thread_id);
 
-    FAP_SERVER_PRINT("Handler Created with ID: %d", id);
-    // threads[id].status = 1;
+    FAP_SERVER_PRINT("Handler #%d: Starting", id);
     ProtocolMsgType response;
-    //set of socket descriptors
+
+    // Set of socket descriptors
     fd_set readfds;
     int max_sd;
     struct timeval timeout;
@@ -356,7 +357,6 @@ void *handler(void *thread_id) {
         }
         else if((response == USER_DESASSOCIATION_REQUEST) && (active_users > 0)) {
             serialized_string = handle_desassociation(threads[id].user_id);
-            FAP_SERVER_PRINT("Handler #%d: Active Users: %d", id, active_users - 1);
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
             threads[id].alarm_flag = TRUE;
             break;
@@ -367,6 +367,7 @@ void *handler(void *thread_id) {
     threads[id].alarm_flag = FALSE;
     threads[id].user_id = 0;
 
+    shutdown(threads[id].socket, SHUT_RDWR);
     close(threads[id].socket);
 
     threads[id].status = 0;
@@ -376,10 +377,13 @@ void *handler(void *thread_id) {
         active_users--;
     }
     pthread_mutex_unlock(&lock);
+
+    FAP_SERVER_PRINT("Handler #%d: Active Users: %d", id, active_users);
+
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
 
-    FAP_SERVER_PRINT("Handler #%d: Socket closed.", id);
+    FAP_SERVER_PRINT("Handler #%d: Closing.", id);
 
     return (void *) RETURN_VALUE_OK;
 }
@@ -398,22 +402,29 @@ void *wait_connection(void *socket) {
 			break;
 		}
 
-        pthread_mutex_lock(&lock2);
+        pthread_mutex_lock(&lock);
 
-        int i = 0;
-        // while(threads[i].status && (i <= MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS)) i++;
-        while(threads[i].status && (i <= MAX_ASSOCIATED_USERS)) i++;
-
-        // if(i == MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS) {
-        if(i == MAX_ASSOCIATED_USERS) {
-            FAP_SERVER_PRINT_ERROR("Reached user limit. Dropping incoming connection.");
-            pthread_mutex_unlock(&lock2);
-            continue;
-        } else {
-            threads[i].status = 1;
+        int free = FALSE;
+        int i;
+        for(i = 0; i < MAX_ASSOCIATED_USERS; i++) {
+            if(!threads[i].status) {
+                free = TRUE;
+                break;
+            }
         }
 
-        pthread_mutex_unlock(&lock2);
+        if(!free) {
+            shutdown(new, SHUT_RDWR);
+            close(new);
+            FAP_SERVER_PRINT_ERROR("Reached user limit. Dropping incoming connection.");
+            pthread_mutex_unlock(&lock);
+            continue;
+        }
+
+        threads[i].status = 1;
+        active_users++;
+
+        pthread_mutex_unlock(&lock);
 
         int *value = malloc(sizeof(*value));
         *value = i;
@@ -473,7 +484,6 @@ void *send_heartbeat() {
 int initializeFapManagementProtocol()
 {
     memset(clients, 0, sizeof(clients));
-    // memset(&threads, 0 , (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS) * sizeof(threads_clients)); 
     memset(&threads, 0 , MAX_ASSOCIATED_USERS * sizeof(threads_clients)); 
     int opt = 1;
 	exit_flag = FALSE;
@@ -487,10 +497,13 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
     }
 
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        FAP_SERVER_PRINT_ERROR("setsockopt.");
-        return RETURN_VALUE_ERROR;
-    }
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)) < 0)
+        perror("setsockopt(SO_REUSEADDR) failed");
+
+#ifdef SO_REUSEPORT
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, (const char*)&opt, sizeof(opt)) < 0) 
+        perror("setsockopt(SO_REUSEPORT) failed");
+#endif
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = inet_addr(SERVER_IP_ADDRESS);
@@ -501,8 +514,7 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
     }
 
-    // if (listen(server_fd, MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS) < 0) {
-    if (listen(server_fd, MAX_ASSOCIATED_USERS) < 0) {
+    if (listen(server_fd, SO_MAX_CONN) < 0) {
         FAP_SERVER_PRINT_ERROR("listen.");
         return RETURN_VALUE_ERROR;
     }
@@ -512,10 +524,7 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
 
     }
-    if (pthread_mutex_init(&lock2, NULL) != 0) {
-        FAP_SERVER_PRINT_ERROR("Error starting lock.");
-        return RETURN_VALUE_ERROR;
-    }
+
     if(pthread_create(&t_main, NULL, wait_connection, (void *) &server_fd) != 0){
         FAP_SERVER_PRINT_ERROR("Error starting main thread.");
         return RETURN_VALUE_ERROR;
@@ -538,7 +547,6 @@ int terminateFapManagementProtocol()
     exit_flag = 1;
     void *retval;
 
-    // for(int i = 0; i < (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS); i++) {
     for(int i = 0; i < (MAX_ASSOCIATED_USERS); i++) {
         if(threads[i].status == 1) {
             shutdown(threads[i].socket, SHUT_RDWR);
@@ -564,10 +572,7 @@ int terminateFapManagementProtocol()
         FAP_SERVER_PRINT_ERROR("Error destroying lock.");
         return RETURN_VALUE_ERROR;
     }
-    if(pthread_mutex_destroy(&lock2) != 0){
-        FAP_SERVER_PRINT_ERROR("Error destroying lock.");
-        return RETURN_VALUE_ERROR;
-    }
+    
     alive = FALSE;
     if((pthread_join(t_heartbeat, &retval) != 0) || ((intptr_t) retval != RETURN_VALUE_OK)) {
         FAP_SERVER_PRINT_ERROR("Error stopping heartbeat.");
