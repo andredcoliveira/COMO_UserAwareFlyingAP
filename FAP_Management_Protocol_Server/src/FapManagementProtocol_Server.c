@@ -101,7 +101,8 @@ struct sockaddr_in address;
 int alarm_flag = FALSE;
 int exit_flag = FALSE;
 int addrlen = sizeof(address);
-threads_clients threads[MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS]; 
+// threads_clients threads[MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS];
+threads_clients threads[MAX_ASSOCIATED_USERS]; 
 pthread_mutex_t lock;
 pthread_mutex_t lock2;
 pthread_t t_main;
@@ -118,21 +119,6 @@ double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2) {
     return sqrt(pow((x1.x-x2.x), 2) + 
 				pow((x1.y-x2.y), 2) + 
 				pow((x1.z-x2.z), 2));
-}
-
-int get_free_thread() {
-    for(int i = 0; i < (MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS); i++) {
-        pthread_mutex_lock(&lock2);
-        if(threads[i].status == 0) {
-            fprintf(stderr, RED "FREEEEEEE: %d", i);  // DEBUG
-            threads[i].status = 1;
-            pthread_mutex_unlock(&lock2);
-			return i;
-		}
-        pthread_mutex_unlock(&lock2);
-    }
-
-    return -1;
 }
 
 void *handler_alarm(void *id) {
@@ -160,16 +146,13 @@ void *handler_alarm(void *id) {
         }
     }
     shutdown(threads[user_id].socket, SHUT_RDWR);
-    // pthread_mutex_lock(&lock);
-    // active_users--;
-    // pthread_mutex_unlock(&lock);
     FAP_SERVER_PRINT("Exiting Alarm.");
     clients[user_id].x= clients[user_id].y=clients[user_id].z=0;
     strcpy(clients[user_id].timestamp, "");
     return NULL;
 }
 
-char *handle_Gps_Update(int thread_id, JSON_Value *root) {
+char *handle_gps_update(int thread_id, JSON_Value *root) {
     char *string = NULL;
     ProtocolMsgType response;
     GpsRawCoordinates ClientRawCoordinates = {0};
@@ -234,13 +217,14 @@ char *handle_association(int id) {
     char *string = NULL;
     ProtocolMsgType response;
 
-    if(active_users < MAX_ASSOCIATED_USERS) { 
-        pthread_mutex_lock(&lock);
+
+    pthread_mutex_lock(&lock);
+    if(active_users < MAX_ASSOCIATED_USERS) {
         active_users++;
-        pthread_mutex_unlock(&lock);
         response = USER_ASSOCIATION_ACCEPTED;
     } else
         response = USER_ASSOCIATION_REJECTED;
+    pthread_mutex_unlock(&lock);
     
     JSON_Value *root_value;
     JSON_Object *root_object;
@@ -362,7 +346,7 @@ void *handler(void *thread_id) {
             send(threads[id].socket, serialized_string, strlen(serialized_string), 0);
         }
         else if(response == GPS_COORDINATES_UPDATE) {    
-            serialized_string = handle_Gps_Update(id, root_value);
+            serialized_string = handle_gps_update(id, root_value);
             if(serialized_string == NULL){
                 threads[id].alarm_flag = TRUE;
                 break;
@@ -387,11 +371,11 @@ void *handler(void *thread_id) {
 
     threads[id].status = 0;
 
+    pthread_mutex_lock(&lock);
     if(active_users > 0){
-        pthread_mutex_lock(&lock);
         active_users--;
-        pthread_mutex_unlock(&lock);
     }
+    pthread_mutex_unlock(&lock);
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
 
@@ -400,7 +384,7 @@ void *handler(void *thread_id) {
     return (void *) RETURN_VALUE_OK;
 }
 
-void *WaitConnection(void *socket) {
+void *wait_connection(void *socket) {
     int sk_main = *(int *) socket;
 
     while(exit_flag == FALSE) {
@@ -417,15 +401,16 @@ void *WaitConnection(void *socket) {
         pthread_mutex_lock(&lock2);
 
         int i = 0;
-        while(threads[i].status && (i <= MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS)) i++;
+        // while(threads[i].status && (i <= MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS)) i++;
+        while(threads[i].status && (i <= MAX_ASSOCIATED_USERS)) i++;
 
-        if(i == MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS) {
+        // if(i == MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS) {
+        if(i == MAX_ASSOCIATED_USERS) {
             FAP_SERVER_PRINT_ERROR("Reached user limit. Dropping incoming connection.");
             pthread_mutex_unlock(&lock2);
             continue;
         } else {
             threads[i].status = 1;
-            fprintf(stderr, RED "\tFREE: %d\n" RESET, i);  // DEBUG
         }
 
         pthread_mutex_unlock(&lock2);
@@ -443,7 +428,7 @@ void *WaitConnection(void *socket) {
     return (void *) RETURN_VALUE_OK;
 }
 
-void *sendHeartbeat() {
+void *send_heartbeat() {
 
     struct timespec start, stop, remaining;
 
@@ -488,7 +473,8 @@ void *sendHeartbeat() {
 int initializeFapManagementProtocol()
 {
     memset(clients, 0, sizeof(clients));
-    memset(&threads, 0 , (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS)*sizeof(threads_clients)); 
+    // memset(&threads, 0 , (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS) * sizeof(threads_clients)); 
+    memset(&threads, 0 , MAX_ASSOCIATED_USERS * sizeof(threads_clients)); 
     int opt = 1;
 	exit_flag = FALSE;
 
@@ -515,7 +501,8 @@ int initializeFapManagementProtocol()
         return RETURN_VALUE_ERROR;
     }
 
-    if (listen(server_fd,MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS) < 0) {
+    // if (listen(server_fd, MAX_ASSOCIATED_USERS + MAX_REJECTED_USERS) < 0) {
+    if (listen(server_fd, MAX_ASSOCIATED_USERS) < 0) {
         FAP_SERVER_PRINT_ERROR("listen.");
         return RETURN_VALUE_ERROR;
     }
@@ -529,7 +516,7 @@ int initializeFapManagementProtocol()
         FAP_SERVER_PRINT_ERROR("Error starting lock.");
         return RETURN_VALUE_ERROR;
     }
-    if(pthread_create(&t_main, NULL, WaitConnection, (void *) &server_fd) != 0){
+    if(pthread_create(&t_main, NULL, wait_connection, (void *) &server_fd) != 0){
         FAP_SERVER_PRINT_ERROR("Error starting main thread.");
         return RETURN_VALUE_ERROR;
     }
@@ -537,7 +524,7 @@ int initializeFapManagementProtocol()
     // Start heartbeat
     alive = TRUE;
 
-    if(pthread_create(&t_heartbeat, NULL, sendHeartbeat, NULL) != 0) {
+    if(pthread_create(&t_heartbeat, NULL, send_heartbeat, NULL) != 0) {
         FAP_SERVER_PRINT_ERROR("Error starting heartbeat.");
         return RETURN_VALUE_ERROR;
     }
@@ -551,10 +538,11 @@ int terminateFapManagementProtocol()
     exit_flag = 1;
     void *retval;
 
-    for(int i = 0; i < (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS); i++){
-        if(threads[i].status == 1){
+    // for(int i = 0; i < (MAX_ASSOCIATED_USERS+MAX_REJECTED_USERS); i++) {
+    for(int i = 0; i < (MAX_ASSOCIATED_USERS); i++) {
+        if(threads[i].status == 1) {
             shutdown(threads[i].socket, SHUT_RDWR);
-             if(pthread_join(threads[i].tid, &retval) != 0 || ((intptr_t) retval != RETURN_VALUE_OK)){
+             if(pthread_join(threads[i].tid, &retval) != 0 || ((intptr_t) retval != RETURN_VALUE_OK)) {
                 FAP_SERVER_PRINT_ERROR("Error exiting thread #%d: %s", i, strerror(errno));
             }
             else

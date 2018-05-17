@@ -91,7 +91,7 @@ public class FapManagementProtocol_Client
 
 		/* Replace with getUserIdExternal() if server address isn't local */
 //		this.userId = getUserIdLocal();
-		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // DEBUG
+		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // For testing different IDs
 
 
 		if(this.userId < 0)
