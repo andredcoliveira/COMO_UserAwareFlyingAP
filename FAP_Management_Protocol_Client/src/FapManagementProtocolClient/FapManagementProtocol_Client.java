@@ -323,8 +323,6 @@ public class FapManagementProtocol_Client
 		if(!sendMsg(msg))
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 
-		prettyPrint("sendGpsCoordinatesToFap", "Aqui 1"); // DEBUG
-
 
 		/* Set the timeout value and read response from socket */
 		try {
@@ -333,16 +331,12 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		prettyPrint("sendGpsCoordinatesToFap", "Aqui 2"); // DEBUG
-
 
 		try {
 			TimeUnit.NANOSECONDS.sleep(100);
 		} catch (InterruptedException e) {
 			closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
-
-		prettyPrint("sendGpsCoordinatesToFap", "Aqui 3"); // DEBUG
 
 		/* Parse response and check its values */
 		LinkedHashMap response = null;
@@ -352,20 +346,14 @@ public class FapManagementProtocol_Client
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
-		prettyPrint("sendGpsCoordinatesToFap", "Aqui 4"); // DEBUG
-
 
 		if(response == null)
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
-
-		prettyPrint("sendGpsCoordinatesToFap", "Aqui 5"); // DEBUG
 
 		int responseId = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_USER_ID).toString());
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 		String responseTimestamp = response.get(PROTOCOL_PARAMETERS_GPS_TIMESTAMP).toString();
 
-
-		prettyPrint("sendGpsCoordinatesToFap", "Aqui 6"); // DEBUG
 
 		if(responseId != this.userId
 				|| responseMsgType != ProtocolMsgType.GPS_COORDINATES_ACK.getMsgTypeValue()
