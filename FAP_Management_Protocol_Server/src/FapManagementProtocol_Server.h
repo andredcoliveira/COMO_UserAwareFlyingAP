@@ -48,7 +48,7 @@
 
 // Maximum simultaneously associated users
 #define MAX_ASSOCIATED_USERS		10
-#define SO_MAX_CONN					MAX_ASSOCIATED_USERS
+#define SO_MAX_CONN					32
 
 
 // =========================================================

@@ -90,8 +90,8 @@ public class FapManagementProtocol_Client
 		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
 		/* Replace with getUserIdExternal() if server address isn't local */
-//		this.userId = getUserIdLocal();
-		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // For testing different IDs
+		this.userId = getUserIdLocal();
+//		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // For testing different IDs
 
 
 		if(this.userId < 0)
@@ -184,6 +184,9 @@ public class FapManagementProtocol_Client
 		int responseMsgType = Integer.parseInt(response.get(PROTOCOL_PARAMETERS_MSG_TYPE).toString());
 
 		if(responseId != this.userId || responseMsgType != ProtocolMsgType.USER_ASSOCIATION_ACCEPTED.getMsgTypeValue()) {
+			if(responseMsgType == ProtocolMsgType.USER_ASSOCIATION_REJECTED.getMsgTypeValue()) {
+				prettyPrint("requestUserAssociation", "Rejected");
+			}
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
 
@@ -313,7 +316,7 @@ public class FapManagementProtocol_Client
 
 		/* Set the timeout value and read response from socket */
 		try {
-			this.socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000 + 5000);
+			this.socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000);
 		} catch (SocketException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
