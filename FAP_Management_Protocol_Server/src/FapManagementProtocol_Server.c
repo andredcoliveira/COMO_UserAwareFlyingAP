@@ -120,33 +120,34 @@ double calculate_distance(GpsNedCoordinates x1, GpsNedCoordinates x2) {
 }
 
 void *handler_alarm(void *id) {
-    int user_id = *(int *) id;
+    int handler_id = *(int *) id;
     time_t now, past_time;
     struct tm now_t, past;
 
     char *timestamp = NULL;
 
-    while(threads[user_id].alarm_flag == 0) {
+    while(threads[handler_id].alarm_flag == 0) {
         if(exit_flag == 1)
             break;
-        if(strcmp(clients[user_id].timestamp, "") == 0)
+        if(strcmp(clients[handler_id].timestamp, "") == 0)
             continue;
         
         now = time(&now);
         now_t = *gmtime(&now);
-        timestamp = clients[user_id].timestamp;
+        timestamp = clients[handler_id].timestamp;
         strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ", &past);
         past.tm_isdst = now_t.tm_isdst;
         past_time = mktime(&past);
         if(difftime(now, past_time) > GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS) {
-            FAP_SERVER_PRINT_ERROR("Handler #%d: Too long without updating coordinates, exiting now.", user_id);
-            threads[user_id].alarm_flag = TRUE;
+            FAP_SERVER_PRINT_ERROR("Handler #%d: Too long without updating coordinates, exiting now.", handler_id);
+            threads[handler_id].alarm_flag = TRUE;
         }
     }
-    // shutdown(threads[user_id].socket, SHUT_RDWR);
+    // shutdown(threads[handler_id].socket, SHUT_RDWR);
     FAP_SERVER_PRINT("Exiting Alarm.");
-    clients[user_id].x= clients[user_id].y=clients[user_id].z=0;
-    strcpy(clients[user_id].timestamp, "");
+    clients[handler_id].x = clients[handler_id].y = clients[handler_id].z = 0;
+    memset(clients[handler_id].timestamp, '\0', TIMESTAMP_ISO8601_SIZE);
+    // strcpy(clients[handler_id].timestamp, "");
     return NULL;
 }
 
@@ -328,7 +329,7 @@ void *handler(void *thread_id) {
 			continue;
 		} else if(FD_ISSET(threads[id].socket, &readfds)) {
 			// socket has data
-			if(recv(threads[id].socket, buffer, MAX_BUFFER, 0) <= 0) {
+			if((res = recv(threads[id].socket, buffer, MAX_BUFFER, 0)) <= 0) {
 				threads[id].alarm_flag = TRUE;
 				FAP_SERVER_PRINT("Handler #%d: Ending Connection.", id);
 				break;

@@ -71,7 +71,7 @@ public class FapManagementProtocol_Client
 	private ObjectMapper objectMapper;
 	private int userId;
 	private BufferedReader in;
-	private PrintWriter out;
+	private OutputStreamWriter out;
 
 	// =========================================================
 	//           PUBLIC API
@@ -90,8 +90,8 @@ public class FapManagementProtocol_Client
 		objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
 		/* Replace with getUserIdExternal() if server address isn't local */
-		this.userId = getUserIdLocal();
-//		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // For testing different IDs
+//		this.userId = getUserIdLocal();
+		this.userId = ThreadLocalRandom.current().nextInt(2, 254 + 1); // For testing different IDs
 
 
 		if(this.userId < 0)
@@ -144,7 +144,7 @@ public class FapManagementProtocol_Client
 
 		/* Create output stream */
 		try {
-			this.out = new PrintWriter(this.socket.getOutputStream(), true);
+			out = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
 		} catch (IOException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
@@ -313,7 +313,7 @@ public class FapManagementProtocol_Client
 
 		/* Set the timeout value and read response from socket */
 		try {
-			this.socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000);
+			this.socket.setSoTimeout(GPS_COORDINATES_UPDATE_TIMEOUT_SECONDS*1000 + 5000);
 		} catch (SocketException e) {
 			return closeSocket(this.socket, RETURN_VALUE_ERROR);
 		}
@@ -406,7 +406,13 @@ public class FapManagementProtocol_Client
 			return false;
 		}
 
-		this.out.println(msg);
+		try {
+			this.out.write(msg);
+			this.out.flush();
+		} catch (IOException e) {
+			return false;
+		}
+
 
 		return true;
 	}
