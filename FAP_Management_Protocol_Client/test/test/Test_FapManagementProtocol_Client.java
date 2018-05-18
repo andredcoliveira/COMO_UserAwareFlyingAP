@@ -13,6 +13,7 @@ import java.util.Random;
 
 import FapManagementProtocolClient.*;
 import java.time.ZoneId;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -68,7 +69,7 @@ public class Test_FapManagementProtocol_Client
 		} else {
 			System.out.print("\n# TEST SUMMARY: " + nErrors + " errors.");
 			if(nErrors == 2 || nErrors == 3)
-				System.out.println(" Check if sent coordinates are within limits.");
+				System.out.println(" Check the server log. Coordinates could be out of bounds.");
 		}
 	}
 
