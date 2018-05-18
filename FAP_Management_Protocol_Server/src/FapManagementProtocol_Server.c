@@ -426,7 +426,7 @@ void *wait_connection() {
     while(exit_flag == FALSE) {
 		int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
         if((new < 0) && exit_flag == FALSE) {
-            FAP_SERVER_PRINT("Error accepting connection.");
+            FAP_SERVER_PRINT_ERROR("Error accepting connection.");
             return (void *) RETURN_VALUE_ERROR;
         }
 
@@ -465,7 +465,7 @@ void *wait_connection() {
 
         threads[i].socket = new;
         if(pthread_create(&threads[i].tid, NULL, handler, (void *) value) != 0) {
-            FAP_SERVER_PRINT("Error starting handler thread #%d.", i);
+            FAP_SERVER_PRINT_ERROR("Error starting handler thread #%d.", i);
             return (void *) RETURN_VALUE_ERROR;
         }
     }
