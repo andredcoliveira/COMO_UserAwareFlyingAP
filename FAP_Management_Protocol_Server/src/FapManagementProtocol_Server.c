@@ -389,8 +389,39 @@ void *handler(void *thread_id) {
     return (void *) RETURN_VALUE_OK;
 }
 
-void *wait_connection(void *socket) {
-    int sk_main = *(int *) socket;
+// void *wait_connection(void *socket) {
+void *wait_connection() {
+    // int sk_main = *(int *) socket;
+
+    int sk_main = server_fd;
+    int opt = 1;
+
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        FAP_SERVER_PRINT_ERROR("socket failed.");
+        return (void *) RETURN_VALUE_ERROR;
+    }
+
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)) < 0)
+        perror("setsockopt(SO_REUSEADDR) failed");
+
+#ifdef SO_REUSEPORT
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, (const char*)&opt, sizeof(opt)) < 0) 
+        perror("setsockopt(SO_REUSEPORT) failed");
+#endif
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr(SERVER_IP_ADDRESS);
+    address.sin_port = htons(SERVER_PORT_NUMBER);
+
+    if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
+        FAP_SERVER_PRINT_ERROR("bind.");
+        return (void *) RETURN_VALUE_ERROR;
+    }
+
+    if (listen(server_fd, SO_MAX_CONN) < 0) {
+        FAP_SERVER_PRINT_ERROR("listen.");
+        return (void *) RETURN_VALUE_ERROR;
+    }
 
     while(exit_flag == FALSE) {
 		int new = accept(sk_main, (struct sockaddr *) &address, (socklen_t *) &addrlen);
@@ -398,6 +429,8 @@ void *wait_connection(void *socket) {
             FAP_SERVER_PRINT("Error accepting connection.");
             return (void *) RETURN_VALUE_ERROR;
         }
+
+        FAP_SERVER_PRINT_ERROR("new: %d", new);  // DEBUG
 
 		if(exit_flag == TRUE) {
 			break;
@@ -493,32 +526,32 @@ int initializeFapManagementProtocol()
             || sendMavlinkMsg_gpsGlobalOrigin(&fapOriginRawCoordinates) != RETURN_VALUE_OK)
         return RETURN_VALUE_ERROR;
 
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        FAP_SERVER_PRINT_ERROR("socket failed.");
-        return RETURN_VALUE_ERROR;
-    }
+//     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+//         FAP_SERVER_PRINT_ERROR("socket failed.");
+//         return RETURN_VALUE_ERROR;
+//     }
 
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)) < 0)
-        perror("setsockopt(SO_REUSEADDR) failed");
+//     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)) < 0)
+//         perror("setsockopt(SO_REUSEADDR) failed");
 
-#ifdef SO_REUSEPORT
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, (const char*)&opt, sizeof(opt)) < 0) 
-        perror("setsockopt(SO_REUSEPORT) failed");
-#endif
+// #ifdef SO_REUSEPORT
+//     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, (const char*)&opt, sizeof(opt)) < 0) 
+//         perror("setsockopt(SO_REUSEPORT) failed");
+// #endif
 
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr(SERVER_IP_ADDRESS);
-    address.sin_port = htons(SERVER_PORT_NUMBER);
+//     address.sin_family = AF_INET;
+//     address.sin_addr.s_addr = inet_addr(SERVER_IP_ADDRESS);
+//     address.sin_port = htons(SERVER_PORT_NUMBER);
 
-    if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-        FAP_SERVER_PRINT_ERROR("bind.");
-        return RETURN_VALUE_ERROR;
-    }
+//     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
+//         FAP_SERVER_PRINT_ERROR("bind.");
+//         return RETURN_VALUE_ERROR;
+//     }
 
-    if (listen(server_fd, SO_MAX_CONN) < 0) {
-        FAP_SERVER_PRINT_ERROR("listen.");
-        return RETURN_VALUE_ERROR;
-    }
+//     if (listen(server_fd, SO_MAX_CONN) < 0) {
+//         FAP_SERVER_PRINT_ERROR("listen.");
+//         return RETURN_VALUE_ERROR;
+//     }
 
     if (pthread_mutex_init(&lock, NULL) != 0) {
         FAP_SERVER_PRINT_ERROR("Error starting lock.");
